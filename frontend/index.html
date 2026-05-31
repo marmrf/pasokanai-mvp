@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="PasokanAI — Asisten tani yang bantu Bapak/Ibu menentukan tanaman terbaik, waktu yang pas, dan harga jual yang adil. Gratis, mudah, tidak perlu paham teknologi." />
+<title>PasokanAI — Asisten Tani untuk Bapak/Ibu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-900: #0f3a26;
+    --green-700: #1f6b43;
+    --green-500: #2d9560;
+    --green-300: #7ec8a3;
+    --green-50:  #effaf3;
+    --earth-900: #2a1f12;
+    --earth-700: #6b4f2c;
+    --earth-300: #d6b582;
+    --cream:     #fdfaf3;
+    --paper:     #fffefa;
+    --ink:       #1a1f1c;
+    --ink-soft:  #4a5550;
+    --ink-mute:  #8a948f;
+    --line:      #e6ddc9;
+    --line-soft: #f0e9d8;
+    --amber:     #d97706;
+    --amber-bg:  #fef3c7;
+    --red:       #b91c1c;
+    --red-bg:    #fee2e2;
+    --blue:      #1e40af;
+    --blue-bg:   #dbeafe;
+    --shadow-sm: 0 1px 2px rgba(15,58,38,0.04), 0 1px 3px rgba(15,58,38,0.06);
+    --shadow:    0 4px 6px -1px rgba(15,58,38,0.06), 0 2px 4px -1px rgba(15,58,38,0.04);
+    --shadow-lg: 0 12px 24px -8px rgba(15,58,38,0.10), 0 4px 8px -4px rgba(15,58,38,0.06);
+    --radius:    14px;
+    --radius-sm: 8px;
+    --radius-lg: 20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; color: var(--green-900); }
+  h1 { font-size: clamp(2rem, 5vw, 3.4rem); }
+  h2 { font-size: clamp(1.5rem, 3.5vw, 2.2rem); }
+  h3 { font-size: 1.2rem; }
+  p { color: var(--ink-soft); }
+  a { color: inherit; text-decoration: none; }
+
+  /* ── HEADER ──────────────────────────── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(253,250,243,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .nav {
+    max-width: 1180px; margin: 0 auto;
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; }
+  .brand-logo {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--green-700), var(--green-500));
+    display: grid; place-items: center;
+    color: white; font-size: 1.1rem;
+    box-shadow: var(--shadow);
+  }
+  .brand-name { color: var(--green-900); }
+  .brand-tag {
+    font-size: 0.7rem; padding: 3px 8px; border-radius: 999px;
+    background: var(--green-50); color: var(--green-700);
+    font-weight: 600; letter-spacing: 0.02em;
+  }
+  /* Badge Azure — biru muda untuk menunjukkan platform partner */
+  .azure-tag {
+    font-size: 0.7rem; padding: 3px 10px; border-radius: 999px;
+    background: #dbeafe; color: #1e40af;
+    font-weight: 600; letter-spacing: 0.02em;
+    display: inline-flex; align-items: center; gap: 4px;
+    border: 1px solid #bfdbfe;
+  }
+  .azure-tag svg { width: 11px; height: 11px; }
+  .nav-cta {
+    padding: 10px 18px; border-radius: 999px;
+    background: var(--green-700); color: white;
+    font-weight: 600; font-size: 0.9rem;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: none; cursor: pointer;
+  }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+
+  /* ── HERO ─────────────────────────────── */
+  .hero {
+    max-width: 1180px; margin: 0 auto;
+    padding: 60px 24px 40px;
+    text-align: center;
+    position: relative;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 999px;
+    background: white; border: 1px solid var(--line);
+    font-size: 0.85rem; font-weight: 500; color: var(--green-700);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+  }
+  .hero-eyebrow::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green-500);
+    box-shadow: 0 0 0 3px rgba(45,149,96,0.2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .hero h1 { margin-bottom: 20px; }
+  .hero h1 em { font-style: italic; color: var(--green-700); font-weight: 700; }
+  .hero p.lead {
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    max-width: 620px; margin: 0 auto 36px;
+    color: var(--ink-soft);
+  }
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 16px 32px;
+    background: var(--green-700); color: white;
+    border-radius: 999px;
+    font-weight: 600; font-size: 1rem;
+    border: none; cursor: pointer;
+    box-shadow: 0 8px 20px -8px rgba(31,107,67,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -8px rgba(31,107,67,0.6); }
+  .hero-trust {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 24px;
+    margin-top: 36px;
+    font-size: 0.88rem; color: var(--ink-mute);
+  }
+  .hero-trust span { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ── STATS BAR ─────────────────────────── */
+  .stats {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+  /* Flexbox lebih kompatibel daripada CSS Grid untuk layout 4 kotak sama lebar */
+  .stats-inner {
+    display: flex;
+    flex-wrap: wrap;
+    background: var(--paper);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--line-soft);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat {
+    flex: 1 1 25%;          /* desktop: 4 kolom sama lebar */
+    min-width: 0;            /* allow shrinking inside flex */
+    padding: 32px 20px;
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+  }
+  /* Vertical separator antar kotak */
+  .stat:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 24px;
+    bottom: 24px;
+    right: 0;
+    width: 1px;
+    background: var(--line-soft);
+  }
+  .stat-num {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 2.3rem; color: var(--green-900);
+    line-height: 1;
+  }
+  .stat-label { font-size: 0.85rem; color: var(--ink-mute); margin-top: 8px; line-height: 1.4; }
+
+  /* Tablet: 2x2 grid */
+  @media (max-width: 768px) {
+    .stat { flex: 1 1 50%; }
+    .stat:nth-child(2)::after { display: none; }
+    .stat:nth-child(1), .stat:nth-child(2) {
+      border-bottom: 1px solid var(--line-soft);
+    }
+  }
+  /* Mobile: 1 kolom */
+  @media (max-width: 480px) {
+    .stat { flex: 1 1 100%; }
+    .stat::after { display: none !important; }
+    .stat:not(:last-child) { border-bottom: 1px solid var(--line-soft); }
+  }
+
+  /* ── SECTION ───────────────────────────── */
+  section { padding: 60px 24px; }
+  .container { max-width: 1180px; margin: 0 auto; }
+  .section-head { text-align: center; margin-bottom: 40px; }
+  .section-head .kicker {
+    display: inline-block;
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--green-700); text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .section-head h2 { margin-bottom: 12px; }
+  .section-head p { max-width: 600px; margin: 0 auto; }
+
+  /* ── HOW IT WORKS ──────────────────────── */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+  }
+  .step-card {
+    background: var(--paper);
+    padding: 28px 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line-soft);
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .step-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--green-50); color: var(--green-700);
+    display: grid; place-items: center;
+    font-weight: 700; font-family: 'Fraunces', serif;
+    margin-bottom: 16px;
+  }
+  .step-card h3 { color: var(--green-900); margin-bottom: 6px; font-size: 1.05rem; }
+  .step-card p { font-size: 0.92rem; }
+
+  /* ── APP SHELL ─────────────────────────── */
+  .app-section { background: var(--paper); border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+  .app {
+    max-width: 720px; margin: 0 auto;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    box-shadow: var(--shadow-lg);
+  }
+  .progress-track {
+    display: flex; gap: 6px; margin-bottom: 28px;
+  }
+  .progress-step {
+    flex: 1; height: 4px; border-radius: 2px;
+    background: var(--line);
+    transition: background 0.4s;
+  }
+  .progress-step.active { background: var(--green-500); }
+  .progress-label {
+    font-size: 0.8rem; color: var(--ink-mute);
+    margin-bottom: 8px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .step-title { margin-bottom: 22px; }
+
+  /* ── Voice input card ───────────────────── */
+  .voice-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 20px;
+    margin-bottom: 22px;
+    background: linear-gradient(135deg, #e8f5ec 0%, #f4faf6 100%);
+    border: 1px solid var(--green-300);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+  }
+  .voice-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px -8px rgba(45,149,96,0.25);
+    border-color: var(--green-500);
+  }
+  .voice-card:active { transform: translateY(0); }
+  .voice-mic {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--green-500), var(--green-700));
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    color: white;
+    box-shadow: 0 4px 12px -2px rgba(45,149,96,0.4);
+    position: relative;
+  }
+  /* Subtle pulse halo around mic */
+  .voice-mic::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--green-300);
+    opacity: 0;
+    animation: voice-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes voice-pulse {
+    0%, 100% { transform: scale(0.95); opacity: 0; }
+    50%      { transform: scale(1.15); opacity: 0.6; }
+  }
+  .voice-mic svg { width: 24px; height: 24px; }
+  .voice-text { flex: 1; min-width: 0; }
+  .voice-title {
+    font-weight: 700; color: var(--green-900);
+    font-size: 1rem;
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 3px;
+  }
+  .voice-subtitle {
+    font-size: 0.88rem; color: var(--ink-soft);
+    line-height: 1.4;
+  }
+
+  /* Divider "atau isi langsung" */
+  .or-divider {
+    display: flex; align-items: center; gap: 14px;
+    margin: 18px 0 22px;
+    color: var(--ink-mute);
+    font-size: 0.85rem;
+  }
+  .or-divider::before,
+  .or-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+  .form-group { margin-bottom: 20px; }
+  .form-label {
+    display: block; font-size: 0.92rem; font-weight: 600;
+    color: var(--ink); margin-bottom: 8px;
+  }
+  .form-hint { font-size: 0.82rem; color: var(--ink-mute); margin-top: 4px; }
+  .form-input, .form-select {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    font-family: inherit; font-size: 0.95rem;
+    color: var(--ink);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--green-500);
+    box-shadow: 0 0 0 3px rgba(45,149,96,0.15);
+  }
+  .input-row { display: flex; align-items: center; gap: 8px; }
+  .input-row .form-input { flex: 1; }
+  .input-suffix {
+    padding: 0 12px; color: var(--ink-mute);
+    font-size: 0.9rem; font-weight: 600;
+  }
+  .priority-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .priority-card {
+    border: 2px solid var(--line);
+    background: var(--paper);
+    border-radius: var(--radius-sm);
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+  }
+  .priority-card:hover { border-color: var(--green-300); }
+  .priority-card.selected {
+    border-color: var(--green-500);
+    background: var(--green-50);
+  }
+  .priority-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .priority-card h4 { font-family: inherit; font-size: 0.95rem; color: var(--ink); margin-bottom: 2px; font-weight: 600; }
+  .priority-card p { font-size: 0.8rem; color: var(--ink-mute); }
+  .button-row {
+    display: flex; gap: 12px; margin-top: 24px;
+    justify-content: space-between;
+  }
+  .btn {
+    padding: 12px 24px; border-radius: 999px;
+    font-family: inherit; font-weight: 600; font-size: 0.92rem;
+    cursor: pointer; border: none;
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--green-700); color: white; }
+  .btn-primary:hover { background: var(--green-900); }
+  .btn-primary:disabled { background: var(--line); color: var(--ink-mute); cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--ink-soft); }
+  .btn-ghost:hover { background: var(--line-soft); }
+  .btn-outline {
+    background: var(--paper); color: var(--green-700);
+    border: 1px solid var(--green-300);
+  }
+  .btn-outline:hover { background: var(--green-50); }
+
+  /* ── LOADING ───────────────────────────── */
+  .loading-stages {
+    display: flex; flex-direction: column; gap: 14px;
+    margin: 24px 0;
+  }
+  .loading-stage {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-sm);
+    opacity: 0.4; transition: opacity 0.4s;
+  }
+  .loading-stage.active { opacity: 1; border-color: var(--green-300); background: var(--green-50); }
+  .loading-stage.done { opacity: 1; }
+  .loading-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--line-soft);
+    display: grid; place-items: center;
+    font-size: 0.85rem; font-weight: 700; color: var(--ink-mute);
+    flex-shrink: 0;
+  }
+  .loading-stage.active .loading-icon { background: var(--green-500); color: white; }
+  .loading-stage.done .loading-icon { background: var(--green-700); color: white; }
+  .loading-stage.done .loading-icon::before { content: '✓'; }
+  .loading-stage.done .loading-icon span { display: none; }
+  .loading-text-main { font-size: 0.92rem; font-weight: 600; color: var(--ink); }
+  .loading-text-sub { font-size: 0.78rem; color: var(--ink-mute); margin-top: 2px; }
+
+  /* ── RESULT ────────────────────────────── */
+  .result-hero {
+    background: linear-gradient(135deg, var(--green-700), var(--green-500));
+    color: white;
+    padding: 32px 28px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-hero::before {
+    content: ''; position: absolute; top: -40%; right: -20%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .result-hero-top {
+    display: flex; align-items: center; gap: 18px; position: relative;
+    margin-bottom: 18px;
+  }
+  .result-emoji {
+    font-size: 3rem;
+    background: rgba(255,255,255,0.15);
+    width: 72px; height: 72px;
+    border-radius: 18px;
+    display: grid; place-items: center;
+    backdrop-filter: blur(10px);
+  }
+  .result-name { color: white; font-size: 2rem; margin-bottom: 4px; }
+  .result-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.85rem; opacity: 0.9; }
+  .result-meta span { display: inline-flex; align-items: center; gap: 4px; }
+  .result-confidence {
+    background: rgba(255,255,255,0.15);
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    backdrop-filter: blur(10px);
+    position: relative;
+    font-size: 0.88rem;
+  }
+  .result-confidence strong { font-size: 1.2rem; font-weight: 700; }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px; margin-bottom: 28px;
+  }
+  .result-tile {
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+  }
+  .result-tile-label {
+    font-size: 0.78rem; color: var(--ink-mute);
+    font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .result-tile-value {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem; font-weight: 600;
+    color: var(--green-900);
+  }
+  .result-tile-sub { font-size: 0.8rem; color: var(--ink-mute); margin-top: 4px; }
+
+  /* ── REASONING BOX ─────────────────────── */
+  .reasoning {
+    background: var(--green-50);
+    border-left: 4px solid var(--green-500);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    margin-bottom: 28px;
+  }
+  .reasoning-head {
+    display: flex; align-items: center; gap: 8px;
+    font-weight: 700; color: var(--green-900);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+  .reasoning-head .ai-tag {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em;
+    background: var(--green-700); color: white;
+    padding: 2px 8px; border-radius: 999px;
+  }
+  .reasoning-body { font-size: 0.92rem; color: var(--ink-soft); line-height: 1.65; }
+
+  /* ── SCENARIOS ─────────────────────────── */
+  .subsection-title {
+    font-size: 1.1rem; color: var(--green-900);
+    margin: 32px 0 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .scenario-tabs {
+    display: flex; gap: 6px; padding: 4px;
+    background: var(--line-soft); border-radius: 999px;
+    margin-bottom: 16px;
+    width: fit-content;
+  }
+  .scenario-tab {
+    padding: 8px 18px; border-radius: 999px;
+    font-size: 0.88rem; font-weight: 600;
+    background: transparent; border: none; cursor: pointer;
+    color: var(--ink-mute);
+    transition: all 0.2s;
+  }
+  .scenario-tab.active { background: var(--paper); color: var(--green-900); box-shadow: var(--shadow-sm); }
+  .scenario-card {
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: none;
+  }
+  .scenario-card.active { display: block; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .scenario-income {
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem; font-weight: 600;
+    color: var(--green-700);
+    margin-bottom: 4px;
+  }
+  .scenario-income-sub { font-size: 0.85rem; color: var(--ink-mute); margin-bottom: 18px; }
+  .scenario-detail {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .scenario-detail > div { font-size: 0.88rem; }
+  .scenario-detail .lbl { color: var(--ink-mute); margin-bottom: 2px; }
+  .scenario-detail .val { color: var(--ink); font-weight: 600; }
+  .scenario-note {
+    font-size: 0.88rem; color: var(--ink-soft);
+    padding: 12px 14px;
+    background: var(--cream); border-radius: var(--radius-sm);
+    line-height: 1.55;
+  }
+
+  /* ── KUR SCORE ────────────────────────── */
+  .kur-card {
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+  .kur-top {
+    display: flex; align-items: center; gap: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .kur-score-circle {
+    width: 88px; height: 88px; border-radius: 50%;
+    background: conic-gradient(var(--green-500) 0% 74%, var(--line-soft) 74% 100%);
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .kur-score-circle::before {
+    content: ''; position: absolute; inset: 8px;
+    background: var(--paper); border-radius: 50%;
+  }
+  .kur-score-num {
+    position: relative;
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem; font-weight: 700;
+    color: var(--green-900);
+  }
+  .kur-status { font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--green-900); margin-bottom: 4px; }
+  .kur-desc { font-size: 0.88rem; color: var(--ink-soft); }
+  .kur-checks { display: flex; flex-direction: column; gap: 12px; }
+  .kur-check {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px;
+    background: var(--cream);
+    border-radius: var(--radius-sm);
+  }
+  .kur-check-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .kur-check-body { flex: 1; }
+  .kur-check-title { font-size: 0.92rem; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+  .kur-check-desc { font-size: 0.82rem; color: var(--ink-mute); }
+  .kur-check-status {
+    font-size: 0.78rem; font-weight: 600;
+    padding: 3px 10px; border-radius: 999px;
+    flex-shrink: 0; align-self: center;
+  }
+  .kur-check-status.ok { background: var(--green-50); color: var(--green-700); }
+  .kur-check-status.warn { background: var(--amber-bg); color: var(--amber); }
+
+  /* ── MARKET FAIRNESS LAYER (NEW) ───────── */
+  .mfl-section {
+    background: linear-gradient(180deg, var(--earth-300) 0%, var(--cream) 80%);
+    margin: 40px -28px -32px;
+    padding: 36px 28px 36px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    border-top: 2px solid var(--earth-700);
+  }
+  .mfl-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--earth-700); color: white;
+    padding: 5px 12px; border-radius: 999px;
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .mfl-title { color: var(--earth-900); margin-bottom: 8px; }
+  .mfl-intro { font-size: 0.95rem; color: var(--earth-900); opacity: 0.85; margin-bottom: 24px; max-width: 540px; }
+
+  .mfl-input-card {
+    background: var(--paper);
+    border: 1px solid var(--earth-300);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .mfl-input-card .form-label { color: var(--earth-900); }
+  .mfl-input-card .form-hint { color: var(--earth-700); }
+
+  /* Gap Alert states */
+  .gap-result { display: none; }
+  .gap-result.show { display: block; animation: fadeIn 0.4s; }
+
+  .gap-fair {
+    background: var(--green-50);
+    border: 1px solid var(--green-300);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .gap-fair-head {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--green-700); font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .gap-fair p { font-size: 0.92rem; color: var(--ink); }
+
+  .gap-alert {
+    background: white;
+    border: 2px solid var(--red);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .gap-alert-banner {
+    background: var(--red); color: white;
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700;
+  }
+  .gap-alert-body { padding: 22px 20px; }
+  .gap-alert-headline {
+    font-family: 'Fraunces', serif;
+    font-size: 1.5rem; font-weight: 600;
+    color: var(--red); margin-bottom: 6px;
+  }
+  .gap-alert-sub { font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 18px; }
+  .gap-comparison {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    margin-bottom: 20px;
+    background: var(--cream);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+  }
+  .gap-comp { text-align: center; }
+  .gap-comp-lbl { font-size: 0.72rem; color: var(--ink-mute); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 4px; }
+  .gap-comp-val { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--ink); }
+  .gap-comp.bad .gap-comp-val { color: var(--red); }
+  .gap-comp.good .gap-comp-val { color: var(--green-700); }
+
+  /* Alternative channels */
+  .alt-title {
+    font-size: 1rem; font-weight: 700; color: var(--earth-900);
+    margin: 24px 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .alt-list { display: grid; gap: 10px; }
+  .alt-card {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .alt-card:hover { border-color: var(--green-500); transform: translateX(2px); }
+  .alt-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--green-50);
+    display: grid; place-items: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .alt-body { flex: 1; }
+  .alt-name { font-weight: 600; color: var(--ink); font-size: 0.92rem; }
+  .alt-detail { font-size: 0.82rem; color: var(--ink-mute); margin-top: 2px; }
+  .alt-price {
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem; font-weight: 600;
+    color: var(--green-700);
+    flex-shrink: 0;
+  }
+
+  /* Anchor card */
+  .anchor-card {
+    background: linear-gradient(135deg, var(--earth-900), var(--earth-700));
+    color: white;
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-top: 20px;
+  }
+  .anchor-head { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 12px; }
+  .anchor-tag {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
+    background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 999px;
+  }
+  .anchor-card p { color: rgba(255,255,255,0.92); font-size: 0.92rem; }
+  .anchor-quote {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.1);
+    border-left: 3px solid var(--earth-300);
+    border-radius: var(--radius-sm);
+    font-style: italic;
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  /* ── NEXT STEPS ────────────────────────── */
+  .next-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin-top: 24px;
+  }
+  .next-step {
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 12px;
+    text-align: left;
+    border: 1px solid var(--line-soft);
+    width: 100%;
+    font-family: inherit;
+  }
+  .next-step:hover { border-color: var(--green-500); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .next-step-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--green-50); color: var(--green-700);
+    display: grid; place-items: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .next-step-body { flex: 1; }
+  .next-step-title { font-weight: 600; color: var(--ink); font-size: 0.92rem; }
+  .next-step-desc { font-size: 0.78rem; color: var(--ink-mute); margin-top: 2px; }
+
+  /* ── TECH SECTION ──────────────────────── */
+  .tech {
+    background: var(--green-900);
+    color: white;
+    padding: 60px 24px;
+    border-radius: var(--radius-lg);
+    margin: 60px 24px 0;
+    max-width: 1180px;
+    margin-left: auto; margin-right: auto;
+  }
+  .tech .section-head h2 { color: white; }
+  .tech .section-head p { color: rgba(255,255,255,0.75); }
+  .tech .section-head .kicker { color: var(--green-300); }
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .tech-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+  .tech-card-icon { font-size: 1.6rem; margin-bottom: 12px; }
+  .tech-card-title { color: white; font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; margin-bottom: 6px; }
+  .tech-card-desc { font-size: 0.85rem; color: rgba(255,255,255,0.7); line-height: 1.55; }
+
+  /* ── FOOTER ────────────────────────────── */
+  footer {
+    background: var(--cream);
+    padding: 40px 24px 32px;
+    border-top: 1px solid var(--line-soft);
+    text-align: center;
+  }
+  .footer-disclaimer {
+    max-width: 600px; margin: 0 auto 20px;
+    padding: 14px 18px;
+    background: var(--amber-bg);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem; color: var(--amber);
+    font-weight: 500;
+  }
+  .footer-meta { font-size: 0.85rem; color: var(--ink-mute); }
+  .footer-meta a { color: var(--green-700); font-weight: 600; }
+
+  /* ── UTIL ──────────────────────────────── */
+  .hidden { display: none !important; }
+  .icon-sm { width: 16px; height: 16px; vertical-align: middle; }
+
+  /* ── RESPONSIVE ───────────────────────── */
+  @media (max-width: 600px) {
+    section { padding: 40px 16px; }
+    .hero { padding: 40px 16px 30px; }
+    .app { padding: 24px 18px; }
+    .priority-grid { grid-template-columns: 1fr; }
+    .gap-comparison { grid-template-columns: 1fr; gap: 12px; }
+    .button-row { flex-direction: column-reverse; }
+    .button-row .btn { width: 100%; justify-content: center; }
+    .result-hero-top { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .scenario-detail { grid-template-columns: 1fr; }
+    .mfl-section { margin-left: -18px; margin-right: -18px; padding-left: 18px; padding-right: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───────────── HEADER ───────────── -->
+<header>
+  <div class="nav">
+    <div class="brand">
+      <div class="brand-logo">🌿</div>
+      <div>
+        <div class="brand-name">PasokanAI</div>
+      </div>
+      <span class="azure-tag" title="Berjalan di atas Microsoft Azure">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M13.05 4.24L6.56 18.05H2.69L13.05 4.24Z" fill="#0089D6"/>
+          <path d="M14.5 5.36L9.34 18.05L17.21 19.76L21.31 18.05L14.5 5.36Z" fill="#0089D6"/>
+          <path d="M14.5 5.36L9.34 18.05L8.13 21.36L21.31 18.05L14.5 5.36Z" fill="#0078D4" opacity="0.7"/>
+        </svg>
+        Azure
+      </span>
+      <span class="brand-tag">Beta</span>
+    </div>
+    <!-- CTA besar dengan bahasa hangat -->
+    <button class="nav-cta" onclick="scrollToApp()">Mulai Tanya 🌱</button>
+  </div>
+</header>
+
+<!-- ───────────── HERO ───────────── -->
+<!-- Tambahkan ilustrasi petani dengan caping di atas eyebrow untuk versi production -->
+<div class="hero">
+  <div class="hero-eyebrow">Asisten Tani · Gratis · Bahasa Indonesia</div>
+  <!-- Headline: bicara langsung ke "Bapak/Ibu", bukan ke "petani" -->
+  <h1>Halo, Bapak/Ibu —<br>kami bantu putuskan <em>tanam apa</em> dan <em>jual ke siapa</em></h1>
+  <p class="lead">
+    Cerita sebentar tentang lahan Bapak/Ibu, nanti kami berikan saran:
+    tanaman apa yang cocok, kapan waktu tanam yang pas, perkiraan hasil panen,
+    dan harga jual yang wajar. <strong>Tidak perlu paham teknologi.</strong>
+  </p>
+  <!-- CTA besar, kata kerja yang menenangkan -->
+  <button class="hero-cta" onclick="scrollToApp()">
+    🌱 Mulai Cerita ke Kami
+  </button>
+  <div class="hero-trust">
+    <span>✅ Pakai data dari pemerintah</span>
+    <span>📊 Selalu diperbarui</span>
+    <span>🤝 Gratis untuk semua petani</span>
+    <span>🛡️ Lindungi dari harga tidak adil</span>
+  </div>
+</div>
+
+<!-- ───────────── STATS ───────────── -->
+<!-- Ganti dari klaim teknis ke "kepastian" yang relate dengan petani -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-num">12+</div><div class="stat-label">Jenis tanaman bisa dibantu</div></div>
+    <div class="stat"><div class="stat-num">34</div><div class="stat-label">Provinsi sudah dicakup</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Langkah saja sampai dapat saran</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">Biaya — semua gratis</div></div>
+  </div>
+</div>
+
+<!-- ───────────── HOW IT WORKS ───────────── -->
+<section>
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">Caranya Mudah</span>
+      <h2>Tinggal cerita, kami yang hitungkan</h2>
+      <p>Tidak perlu pintar komputer. Cukup jawab 3 pertanyaan singkat tentang lahan Bapak/Ibu.</p>
+    </div>
+    <!-- Setiap kartu pakai bahasa cerita, bukan jargon teknis -->
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>📍 Cerita lahan Bapak/Ibu</h3>
+        <p>Pilih kabupaten dan berapa luas lahannya. Tidak perlu tepat — perkiraan saja sudah cukup.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>⏳ Kami yang hitungkan</h3>
+        <p>Kami cek cuaca, harga pasar, dan kondisi panen 3 tahun terakhir di daerah Bapak/Ibu.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>📋 Dapat saran lengkap</h3>
+        <p>Saran tanaman, waktu tanam, perkiraan harga, dan kemungkinan untung-rugi. Mudah dipahami.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h3>🛡️ Saat panen tiba</h3>
+        <p>Sebelum jual ke tengkulak, cek dulu apakah harganya wajar. Supaya tidak rugi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── APP ───────────── -->
+<section class="app-section" id="app">
+  <div class="app">
+
+    <!-- STEP 1: Location & Land -->
+    <div id="step-1" class="step-screen">
+      <div class="progress-track">
+        <div class="progress-step active"></div>
+        <div class="progress-step"></div>
+        <div class="progress-step"></div>
+      </div>
+      <div class="progress-label">Pertanyaan 1 dari 3</div>
+      <!-- Bahasa percakapan: kami sedang ngobrol dengan Bapak/Ibu -->
+      <h2 class="step-title">Boleh tahu lahan Bapak/Ibu di mana?</h2>
+      <p style="margin-bottom: 24px; color: var(--ink-soft); font-size: 0.95rem;">
+        Cerita sebentar ya, supaya kami bisa memberikan saran yang pas untuk daerah Bapak/Ibu. 🌾
+      </p>
+
+      <!-- Kartu input suara — Bapak/Ibu bisa cerita lewat suara, atau isi manual di bawah -->
+      <button type="button" class="voice-card" onclick="startVoiceInput()" aria-label="Cerita lewat suara">
+        <div class="voice-mic" aria-hidden="true">
+          <!-- SVG ikon mikrofon, inline supaya tidak butuh dependency -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </div>
+        <div class="voice-text">
+          <div class="voice-title">🎙️ Cerita lewat suara</div>
+          <div class="voice-subtitle">Ketuk untuk berbicara — kami akan mengerti</div>
+        </div>
+      </button>
+
+      <!-- Divider: pemisah antara mode suara dan mode ketik -->
+      <div class="or-divider">atau isi langsung</div>
+
+      <div class="form-group">
+        <label class="form-label" for="kabupaten">📍 Lahan Bapak/Ibu di kabupaten mana?</label>
+        <select id="kabupaten" class="form-select">
+          <option value="">— Klik di sini, lalu pilih kabupaten —</option>
+          <optgroup label="Yogyakarta">
+            <option value="sleman">Sleman, Yogyakarta</option>
+            <option value="bantul">Bantul, Yogyakarta</option>
+            <option value="gunungkidul">Gunungkidul, Yogyakarta</option>
+          </optgroup>
+          <optgroup label="Jawa Tengah">
+            <option value="klaten">Klaten, Jawa Tengah</option>
+            <option value="magelang">Magelang, Jawa Tengah</option>
+            <option value="brebes">Brebes, Jawa Tengah</option>
+          </optgroup>
+          <optgroup label="Jawa Timur">
+            <option value="malang">Malang, Jawa Timur</option>
+            <option value="jember">Jember, Jawa Timur</option>
+            <option value="banyuwangi">Banyuwangi, Jawa Timur</option>
+          </optgroup>
+          <optgroup label="Jawa Barat">
+            <option value="bogor">Bogor, Jawa Barat</option>
+            <option value="karawang">Karawang, Jawa Barat</option>
+            <option value="garut">Garut, Jawa Barat</option>
+          </optgroup>
+          <optgroup label="Lainnya">
+            <option value="lombok">Lombok Tengah, NTB</option>
+          </optgroup>
+        </select>
+        <div class="form-hint">Pilih yang paling dekat dengan lahan Bapak/Ibu. Tidak harus tepat 100%.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="luas">🌾 Berapa luas lahan Bapak/Ibu?</label>
+        <div class="input-row">
+          <input id="luas" type="number" min="0.1" step="0.1" placeholder="Contoh: tulis 1 untuk 1 hektare" class="form-input" />
+          <span class="input-suffix">Hektare</span>
+        </div>
+        <!-- Microcopy menenangkan untuk yang ragu -->
+        <div class="form-hint">
+          Kalau bingung: 1 hektare itu sekitar 100×100 meter, atau 1,4 kali lapangan bola. <br>
+          Tidak perlu tepat — perkiraan saja sudah cukup. 😊
+        </div>
+      </div>
+
+      <div class="button-row">
+        <span></span>
+        <!-- CTA jelas, kata kerja yang menenangkan -->
+        <button class="btn btn-primary" id="btn-step1-next" onclick="goToStep(2)">Lanjut, Pertanyaan Berikutnya →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Priority & Capital -->
+    <div id="step-2" class="step-screen hidden">
+      <div class="progress-track">
+        <div class="progress-step active"></div>
+        <div class="progress-step active"></div>
+        <div class="progress-step"></div>
+      </div>
+      <div class="progress-label">Pertanyaan 2 dari 3</div>
+      <!-- Pertanyaan personal: apa yang lebih penting buat Bapak/Ibu -->
+      <h2 class="step-title">Apa yang lebih penting bagi Bapak/Ibu?</h2>
+      <p style="margin-bottom: 24px; color: var(--ink-soft); font-size: 0.95rem;">
+        Tidak ada jawaban yang salah — kami hanya ingin tahu prioritas Bapak/Ibu supaya saran kami lebih pas. 🙏
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">💰 Modal yang sudah Bapak/Ibu siapkan</label>
+        <div class="input-row">
+          <span class="input-suffix">Rp</span>
+          <input id="modal" type="number" min="0" placeholder="Contoh: 5000000 untuk 5 juta" class="form-input" />
+        </div>
+        <!-- Reassurance: ini opsional -->
+        <div class="form-hint">
+          Kalau belum tahu pasti atau belum punya, kosongkan saja tidak apa-apa. Kami tetap bisa bantu. 👍
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">🎯 Mana yang Bapak/Ibu cari?</label>
+        <div class="priority-grid">
+          <button class="priority-card" data-priority="profit" onclick="selectPriority('profit')">
+            <div class="priority-icon">📈</div>
+            <h4>Hasil yang besar</h4>
+            <p>Cari untung lebih banyak, walau ada sedikit risiko</p>
+          </button>
+          <button class="priority-card" data-priority="safe" onclick="selectPriority('safe')">
+            <div class="priority-icon">🛡️</div>
+            <h4>Yang aman saja</h4>
+            <p>Hasil pasti, walau tidak terlalu besar</p>
+          </button>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="btn btn-ghost" onclick="goToStep(1)">← Kembali</button>
+        <button class="btn btn-primary" id="btn-step2-next" onclick="goToStep(3)" disabled>Lanjut, Pertanyaan Terakhir →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Confirm -->
+    <div id="step-3" class="step-screen hidden">
+      <div class="progress-track">
+        <div class="progress-step active"></div>
+        <div class="progress-step active"></div>
+        <div class="progress-step active"></div>
+      </div>
+      <div class="progress-label">Sebentar lagi selesai</div>
+      <h2 class="step-title">Sudah lengkap! Kami siap bantu</h2>
+      <p style="margin-bottom: 20px; color: var(--ink-soft);">
+        Cek dulu ya, apakah sudah benar. Kalau sudah, klik tombol di bawah — kami yang hitungkan untuk Bapak/Ibu. ✨
+      </p>
+
+      <div class="kur-card" style="margin-bottom: 20px;">
+        <div style="font-weight:600; margin-bottom:12px;">📋 Yang sudah Bapak/Ibu ceritakan:</div>
+        <div id="summary-content" style="font-size:0.95rem; color: var(--ink-soft); line-height: 1.9;"></div>
+      </div>
+
+      <div class="button-row">
+        <button class="btn btn-ghost" onclick="goToStep(2)">← Kembali, ada yang ingin diubah</button>
+        <button class="btn btn-primary" onclick="startAnalysis()">✨ Tolong Hitungkan untuk Saya</button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loading-screen" class="step-screen hidden">
+      <h2 class="step-title" style="text-align:center;">🌿 Sebentar ya, Bapak/Ibu</h2>
+      <p style="text-align:center; margin-bottom: 24px; color: var(--ink-soft);">
+        Kami sedang membantu menghitung. Mohon tunggu sebentar... ☕
+      </p>
+      <!-- Loading stages: ganti nama tools jadi sumber yang petani bisa pahami -->
+      <div class="loading-stages">
+        <div class="loading-stage" data-stage="0">
+          <div class="loading-icon"><span>1</span></div>
+          <div>
+            <div class="loading-text-main">Mengecek cuaca di daerah Bapak/Ibu</div>
+            <div class="loading-text-sub">📡 Dari kantor BMKG (cuaca resmi)</div>
+          </div>
+        </div>
+        <div class="loading-stage" data-stage="1">
+          <div class="loading-icon"><span>2</span></div>
+          <div>
+            <div class="loading-text-main">Melihat harga-harga di pasar</div>
+            <div class="loading-text-sub">📊 Dari BPS &amp; Bapanas (pemerintah)</div>
+          </div>
+        </div>
+        <div class="loading-stage" data-stage="2">
+          <div class="loading-icon"><span>2</span></div>
+          <div>
+            <div class="loading-text-main">Mengecek apa yang lagi banyak dicari</div>
+            <div class="loading-text-sub">🔍 Permintaan pasar bulan ini</div>
+          </div>
+        </div>
+        <div class="loading-stage" data-stage="3">
+          <div class="loading-icon"><span>4</span></div>
+          <div>
+            <div class="loading-text-main">Menyusun saran terbaik untuk Bapak/Ibu</div>
+            <div class="loading-text-sub">🤖 Berdasarkan pengalaman 3 tahun terakhir</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result-screen" class="step-screen hidden">
+      <div class="progress-label" style="color: var(--green-700);">Hasil sudah siap</div>
+      <h2 class="step-title">Ini saran kami untuk Bapak/Ibu</h2>
+
+      <!-- Hero card -->
+      <div class="result-hero">
+        <div class="result-hero-top">
+          <div class="result-emoji" id="r-emoji">🌽</div>
+          <div style="position:relative;">
+            <h2 class="result-name" id="r-name">Jagung</h2>
+            <div class="result-meta">
+              <span id="r-risk">🟢 Risiko Rendah</span>
+              <span id="r-loc">📍 Sleman</span>
+            </div>
+          </div>
+        </div>
+        <!-- Ganti "Tingkat Keyakinan AI" → "Seberapa yakin kami" -->
+        <div class="result-confidence">
+          🎯 Seberapa yakin kami: <strong id="r-confidence">78%</strong>
+          <div style="font-size:0.78rem; opacity:0.85; margin-top:4px;">
+            Berdasarkan cuaca dan harga di daerah Bapak/Ibu. Tetap, tidak ada yang bisa menjamin 100% — alam kadang punya kejutan. 🙏
+          </div>
+        </div>
+      </div>
+
+      <!-- Tiles -->
+      <div class="result-grid">
+        <div class="result-tile">
+          <div class="result-tile-label">📅 Mulai tanam</div>
+          <div class="result-tile-value" id="r-time">Mei 2026</div>
+          <div class="result-tile-sub" id="r-time-sub">Awal musim kemarau</div>
+        </div>
+        <div class="result-tile">
+          <div class="result-tile-label">💰 Perkiraan harga jual</div>
+          <div class="result-tile-value" id="r-price">Rp 5.200/kg</div>
+          <div class="result-tile-sub" id="r-price-sub">↑ 8% dari bulan lalu</div>
+        </div>
+        <div class="result-tile">
+          <div class="result-tile-label">🌾 Perkiraan hasil panen</div>
+          <div class="result-tile-value" id="r-yield">4–5 ton</div>
+          <div class="result-tile-sub">setiap hektare</div>
+        </div>
+        <div class="result-tile">
+          <div class="result-tile-label">⏱️ Bisa dipanen</div>
+          <div class="result-tile-value" id="r-harvest">90–100 hari</div>
+          <div class="result-tile-sub">setelah ditanam</div>
+        </div>
+      </div>
+
+      <!-- AI Reasoning → ganti label -->
+      <div class="reasoning">
+        <div class="reasoning-head">
+          💡 Kenapa kami sarankan ini?
+          <span class="ai-tag">Penjelasan</span>
+        </div>
+        <div class="reasoning-body" id="r-reasoning"></div>
+      </div>
+
+      <!-- Scenarios -->
+      <h3 class="subsection-title">🔮 Bagaimana kalau...</h3>
+      <p style="font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 16px;">
+        Hasil panen tergantung cuaca dan pasar. Kami tunjukkan 3 kemungkinan, supaya Bapak/Ibu siap apapun yang terjadi.
+      </p>
+      <div class="scenario-tabs">
+        <button class="scenario-tab active" data-scenario="optimis" onclick="switchScenario('optimis')">😊 Lancar</button>
+        <button class="scenario-tab" data-scenario="normal" onclick="switchScenario('normal')">😐 Biasa</button>
+        <button class="scenario-tab" data-scenario="pesimis" onclick="switchScenario('pesimis')">😟 Berat</button>
+      </div>
+
+      <div class="scenario-card active" id="sc-optimis">
+        <div class="scenario-income" id="sc-optimis-income">Rp 9–13 juta</div>
+        <div class="scenario-income-sub">setiap hektare · perkiraan untung bersih</div>
+        <div class="scenario-detail">
+          <div><div class="lbl">Risiko</div><div class="val">Kecil</div></div>
+          <div><div class="lbl">Harga jual</div><div class="val" id="sc-optimis-price">Rp 5.800–6.200/kg</div></div>
+          <div><div class="lbl">Cuaca</div><div class="val">☀️ Hujan pas-pasan</div></div>
+          <div><div class="lbl">Pasar</div><div class="val">📈 Banyak yang cari</div></div>
+        </div>
+        <div class="scenario-note" id="sc-optimis-note">
+          🌱 Kalau cuacanya bagus dan pasar lagi ramai, untung bisa segini. Doakan saja ya. 🤲
+        </div>
+      </div>
+
+      <div class="scenario-card" id="sc-normal">
+        <div class="scenario-income" id="sc-normal-income">Rp 4–7 juta</div>
+        <div class="scenario-income-sub">setiap hektare · perkiraan untung bersih</div>
+        <div class="scenario-detail">
+          <div><div class="lbl">Risiko</div><div class="val">Sedang</div></div>
+          <div><div class="lbl">Harga jual</div><div class="val" id="sc-normal-price">Rp 4.800–5.400/kg</div></div>
+          <div><div class="lbl">Cuaca</div><div class="val">🌤️ Hujan agak kurang</div></div>
+          <div><div class="lbl">Pasar</div><div class="val">📊 Biasa-biasa saja</div></div>
+        </div>
+        <div class="scenario-note">⚠️ Ini hasil yang paling sering terjadi. Sebaiknya siapkan air cadangan untuk jaga-jaga.</div>
+      </div>
+
+      <div class="scenario-card" id="sc-pesimis">
+        <div class="scenario-income" id="sc-pesimis-income">Rp 1–3 juta</div>
+        <div class="scenario-income-sub">setiap hektare · perkiraan untung bersih</div>
+        <div class="scenario-detail">
+          <div><div class="lbl">Risiko</div><div class="val">Besar</div></div>
+          <div><div class="lbl">Harga jual</div><div class="val" id="sc-pesimis-price">Rp 3.500–4.200/kg</div></div>
+          <div><div class="lbl">Cuaca</div><div class="val">🌧️ Hujan terlalu banyak / kering</div></div>
+          <div><div class="lbl">Pasar</div><div class="val">📉 Sepi pembeli</div></div>
+        </div>
+        <div class="scenario-note">🛡️ Kalau kondisinya begini, lebih baik ada cadangan tanaman lain seperti kacang tanah, atau ikut asuransi pertanian.</div>
+      </div>
+
+      <!-- KUR -->
+      <h3 class="subsection-title">🏦 Kemungkinan dapat pinjaman KUR</h3>
+      <p style="font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 16px;">
+        KUR itu pinjaman murah dari pemerintah untuk petani. Bunganya cuma 6% per tahun, dan tidak perlu jaminan untuk pinjaman kecil.
+      </p>
+      <div class="kur-card">
+        <div class="kur-top">
+          <div class="kur-score-circle">
+            <div class="kur-score-num">74</div>
+          </div>
+          <div>
+            <div class="kur-status">Layak diajukan</div>
+            <div class="kur-desc">Lihat dari hasil panen, lokasi lahan, dan riwayat tanam Bapak/Ibu — kemungkinan besar bisa lolos pengajuan KUR.</div>
+          </div>
+        </div>
+        <div class="kur-checks">
+          <div class="kur-check">
+            <div class="kur-check-icon">🌾</div>
+            <div class="kur-check-body">
+              <div class="kur-check-title">Hasil panen perkiraannya bagus</div>
+              <div class="kur-check-desc">Bapak/Ibu dinilai mampu bayar cicilannya nanti</div>
+            </div>
+            <div class="kur-check-status ok">✓ Aman</div>
+          </div>
+          <div class="kur-check">
+            <div class="kur-check-icon">📍</div>
+            <div class="kur-check-body">
+              <div class="kur-check-title">Lahan ada di daerah yang dilayani KUR</div>
+              <div class="kur-check-desc">Pemerintah memang menyalurkan KUR di sini</div>
+            </div>
+            <div class="kur-check-status ok">✓ Aman</div>
+          </div>
+          <div class="kur-check">
+            <div class="kur-check-icon">💰</div>
+            <div class="kur-check-body">
+              <div class="kur-check-title">Surat-surat lahan</div>
+              <div class="kur-check-desc">Pastikan sertifikat / surat lahan lengkap dulu</div>
+            </div>
+            <div class="kur-check-status warn">⚠ Cek dulu</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ MARKET FAIRNESS LAYER ════ -->
+      <!-- Beri kesan: kami melindungi Bapak/Ibu, bukan menampilkan algoritma -->
+      <div class="mfl-section">
+        <div class="mfl-badge">🛡️ Lindungi Hasil Panen Bapak/Ibu</div>
+        <h2 class="mfl-title">Sebentar, sebelum jual ke tengkulak...</h2>
+        <p class="mfl-intro">
+          Sudah panen? <strong>Jangan buru-buru terima harga pertama.</strong>
+          Coba masukkan harga yang ditawarkan, kami cek dulu apakah harganya wajar atau terlalu murah.
+          Supaya Bapak/Ibu tidak rugi. 🙏
+        </p>
+
+        <div class="mfl-input-card">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="harga-tengkulak">💵 Tengkulak menawar berapa?</label>
+            <div class="input-row">
+              <span class="input-suffix">Rp</span>
+              <input id="harga-tengkulak" type="number" min="0" placeholder="Contoh: 3800" class="form-input" oninput="checkGap()" />
+              <span class="input-suffix">/kg</span>
+            </div>
+            <div class="form-hint">Tulis harga per kilogram untuk hasil panen yang tadi kami sarankan.</div>
+          </div>
+        </div>
+
+        <!-- Gap Result Container (dynamic) -->
+        <div id="gap-result-fair" class="gap-result">
+          <div class="gap-fair">
+            <div class="gap-fair-head">✅ Harga ini wajar, Bapak/Ibu</div>
+            <p>Tawaran tengkulak ini masih dalam batas normal di daerah Bapak/Ibu. Kalau memang butuh uang segera, harga ini boleh diterima — tidak akan rugi banyak. 👍</p>
+          </div>
+        </div>
+
+        <div id="gap-result-alert" class="gap-result">
+          <div class="gap-alert">
+            <div class="gap-alert-banner">⚠️ Hati-hati, harga ini terlalu murah!</div>
+            <div class="gap-alert-body">
+              <div class="gap-alert-headline" id="gap-headline">Selisih Rp 800/kg</div>
+              <div class="gap-alert-sub" id="gap-sub">Untuk panen 1 hektare (~4,5 ton), Bapak/Ibu bisa kehilangan <strong>Rp 3,6 juta</strong> kalau menerima tawaran ini. Jangan diterima dulu ya. 🙏</div>
+
+              <!-- Perbandingan tiga harga, dengan label yang lebih ramah -->
+              <div class="gap-comparison">
+                <div class="gap-comp bad">
+                  <div class="gap-comp-lbl">Tawaran tengkulak</div>
+                  <div class="gap-comp-val" id="gap-comp-tengkulak">Rp 3.800/kg</div>
+                </div>
+                <div class="gap-comp">
+                  <div class="gap-comp-lbl">Petani lain dapat segini</div>
+                  <div class="gap-comp-val" id="gap-comp-avg">Rp 4.600/kg</div>
+                </div>
+                <div class="gap-comp good">
+                  <div class="gap-comp-lbl">Harga pasar saat ini</div>
+                  <div class="gap-comp-val" id="gap-comp-pred">Rp 5.200/kg</div>
+                </div>
+              </div>
+
+              <!-- Saluran alternatif: ganti dari "saluran jual" → "tempat lain" -->
+              <div class="alt-title">🤝 Coba tawarkan ke tempat lain dulu</div>
+              <div class="alt-list" id="alt-list">
+                <!-- Filled dynamically -->
+              </div>
+
+              <div class="anchor-card">
+                <div class="anchor-head">
+                  📋 Kalimat untuk Bapak/Ibu sampaikan ke tengkulak
+                  <span class="anchor-tag">Salin & Pakai</span>
+                </div>
+                <p>Kalau memang harus jual ke tengkulak ini juga, coba sampaikan kalimat berikut. Tunjukkan bahwa Bapak/Ibu tahu harga sebenarnya:</p>
+                <div class="anchor-quote" id="anchor-quote">
+                  "Pak/Bu, harga rata-rata yang diterima petani di area kita minggu ini Rp 4.600/kg, bahkan harga pasarnya Rp 5.200/kg. Tawaran Rp 3.800 selisihnya cukup jauh. Apakah masih bisa kita bicarakan?"
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Steps -->
+      <h3 class="subsection-title" style="margin-top: 40px;">📲 Mau diapakan hasil ini?</h3>
+      <div class="next-steps-grid">
+        <button class="next-step" onclick="shareWhatsApp()">
+          <div class="next-step-icon">💬</div>
+          <div class="next-step-body">
+            <div class="next-step-title">Kirim ke WhatsApp</div>
+            <div class="next-step-desc">Tunjukkan ke keluarga atau penyuluh</div>
+          </div>
+        </button>
+        <button class="next-step" onclick="window.print()">
+          <div class="next-step-icon">📄</div>
+          <div class="next-step-body">
+            <div class="next-step-title">Cetak / Simpan</div>
+            <div class="next-step-desc">Untuk dipasang di rumah</div>
+          </div>
+        </button>
+        <button class="next-step" onclick="alert('Info pinjaman KUR untuk petani:\n\n• Bunga ringan, mulai 6% per tahun\n• Pinjaman sampai Rp 100 juta\n• Untuk pinjaman kecil tidak perlu jaminan\n\nDatang ke kantor BRI, BNI, atau Mandiri terdekat. Bawa KTP, KK, dan surat lahan.')">
+          <div class="next-step-icon">🏦</div>
+          <div class="next-step-body">
+            <div class="next-step-title">Tanya soal KUR</div>
+            <div class="next-step-desc">Pinjaman ringan dari pemerintah</div>
+          </div>
+        </button>
+        <button class="next-step" onclick="resetApp()">
+          <div class="next-step-icon">🔄</div>
+          <div class="next-step-body">
+            <div class="next-step-title">Coba lahan lain</div>
+            <div class="next-step-desc">Cek di daerah berbeda</div>
+          </div>
+        </button>
+      </div>
+
+    </div><!-- /result-screen -->
+
+  </div>
+</section>
+
+<!-- ───────────── TECH ───────────── -->
+<div class="tech">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">Yang Membantu Kami</span>
+      <h2>Datanya dari sumber resmi</h2>
+      <p>Bapak/Ibu tidak perlu khawatir — semua angka yang kami pakai datang dari kantor pemerintah, bukan tebak-tebakan.</p>
+    </div>
+    <!-- Tech section: ganti nama produk Azure menjadi fungsi yang petani pahami -->
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-card-icon">🌧️</div>
+        <div class="tech-card-title">Data Cuaca dari BMKG</div>
+        <div class="tech-card-desc">Setiap hari kami mengecek prakiraan hujan dan suhu di daerah Bapak/Ibu, langsung dari kantor cuaca resmi.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-icon">📊</div>
+        <div class="tech-card-title">Harga dari BPS &amp; Bapanas</div>
+        <div class="tech-card-desc">Harga pasar yang kami tampilkan diambil dari kantor statistik pemerintah, jadi angkanya bisa dipercaya.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-icon">🌾</div>
+        <div class="tech-card-title">Pengalaman 3 Tahun Terakhir</div>
+        <div class="tech-card-desc">Saran kami dibuat dari pengalaman ribuan petani lain di daerah sejenis selama 3 tahun terakhir.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-icon">🏦</div>
+        <div class="tech-card-title">Info KUR dari Pemerintah</div>
+        <div class="tech-card-desc">Aturan dan syarat KUR yang kami pakai sesuai dengan ketentuan resmi Kementerian Koperasi UKM.</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-icon">🛡️</div>
+        <div class="tech-card-title">Lindungi Harga Petani</div>
+        <div class="tech-card-desc">Kami bantu Bapak/Ibu tahu harga sebenarnya, supaya tidak ditekan tengkulak. Ini yang kami sebut "Perlindungan Harga".</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-icon">🤝</div>
+        <div class="tech-card-title">Gratis Selamanya</div>
+        <div class="tech-card-desc">Kami percaya petani sudah cukup berjuang. Pakai PasokanAI tidak akan dipungut biaya apapun.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── FOOTER ───────────── -->
+<footer>
+  <div class="footer-disclaimer">
+    🙏 Saran ini hanya perkiraan dari data yang ada. Sebelum mulai tanam, sebaiknya Bapak/Ibu juga ngobrol dulu dengan penyuluh pertanian setempat ya.
+  </div>
+  <div class="footer-meta">
+    <strong>PasokanAI</strong> — Asisten Tani untuk Petani Indonesia ·
+    <a href="#app">Mulai Tanya</a>
+  </div>
+</footer>
+
+<script>
+  // ════════════════════════════════════════
+  //  STATE
+  // ════════════════════════════════════════
+  const state = {
+    kabupaten: '',
+    kabupatenLabel: '',
+    luas: 0,
+    modal: 0,
+    priority: '',
+    recommendation: null
+  };
+
+  // ════════════════════════════════════════
+  //  RECOMMENDATION DATA
+  //  Variasi output per kabupaten + prioritas
+  // ════════════════════════════════════════
+  const recommendations = {
+    // Yogyakarta — sawah & lahan kering
+    sleman: {
+      profit: { name: 'Cabai Merah', emoji: '🌶️', confidence: 81, risk: '🟡 Risiko Sedang',
+        time: 'Mei–Juni 2026', timeSub: 'Awal kemarau, bagus untuk cabai',
+        price: 'Rp 38.000/kg', priceSub: '↑ 12% dari bulan lalu',
+        yield: '8–10 ton', harvest: '75–90 hari',
+        reasoning: 'Sleman cocok untuk cabai karena tanahnya tidak mudah tergenang dan udara malamnya pas. Harga cabai biasanya naik tinggi menjelang Lebaran 2026, jadi waktunya bagus. Tapi cabai memang agak rewel dengan cuaca, jadi siap-siap saja kalau ada hujan tiba-tiba.',
+        scenarios: { optimis: ['Rp 35–55 juta', 'Rp 42.000–48.000/kg'], normal: ['Rp 18–28 juta', 'Rp 32.000–38.000/kg'], pesimis: ['Rp 5–12 juta', 'Rp 22.000–28.000/kg'] },
+        avgPrice: 35000, predictedPrice: 38000 },
+      safe: { name: 'Jagung', emoji: '🌽', confidence: 78, risk: '🟢 Risiko Rendah',
+        time: 'Mei–Juni 2026', timeSub: 'Awal musim kemarau',
+        price: 'Rp 5.200/kg', priceSub: '↑ 8% dari bulan lalu',
+        yield: '4–5 ton', harvest: '90–100 hari',
+        reasoning: 'Jagung pas untuk Sleman karena tahan cuaca dan biaya tanamnya tidak mahal. Peternak ayam di Yogyakarta selalu butuh jagung jadi pasarnya stabil. Kalau harga lagi jelek pun, jagung bisa disimpan dulu sambil menunggu harga naik.',
+        scenarios: { optimis: ['Rp 9–13 juta', 'Rp 5.800–6.200/kg'], normal: ['Rp 4–7 juta', 'Rp 4.800–5.400/kg'], pesimis: ['Rp 1–3 juta', 'Rp 3.500–4.200/kg'] },
+        avgPrice: 4600, predictedPrice: 5200 },
+    },
+    bantul: {
+      profit: { name: 'Bawang Merah', emoji: '🧅', confidence: 76, risk: '🟡 Risiko Sedang',
+        time: 'April–Mei 2026', timeSub: 'Akhir hujan, awal kering',
+        price: 'Rp 28.000/kg', priceSub: '↑ 15% dari bulan lalu',
+        yield: '7–9 ton', harvest: '60–75 hari',
+        reasoning: 'Bantul memang sudah terkenal untuk bawang merah, dan banyak pedagang yang sudah biasa beli dari sini. Harga bawang lagi naik karena pasokan nasional kurang. Untungnya bisa besar, tapi modal awalnya juga lebih banyak ya.',
+        scenarios: { optimis: ['Rp 60–95 juta', 'Rp 32.000–38.000/kg'], normal: ['Rp 25–45 juta', 'Rp 24.000–28.000/kg'], pesimis: ['Rp 8–18 juta', 'Rp 18.000–22.000/kg'] },
+        avgPrice: 25000, predictedPrice: 28000 },
+      safe: { name: 'Padi', emoji: '🌾', confidence: 84, risk: '🟢 Risiko Rendah',
+        time: 'Mei–Juni 2026', timeSub: 'Musim tanam kedua',
+        price: 'Rp 6.800/kg GKP', priceSub: '↑ 5% dari bulan lalu',
+        yield: '5–6 ton', harvest: '110–120 hari',
+        reasoning: 'Bantul itu salah satu lumbung padi Yogyakarta, airnya juga selalu ada karena irigasinya bagus. Harga gabah dijamin pemerintah, jadi tidak akan rugi banyak. Cocok kalau Bapak/Ibu ingin hasil yang sudah pasti.',
+        scenarios: { optimis: ['Rp 12–17 juta', 'Rp 7.200–7.800/kg'], normal: ['Rp 7–11 juta', 'Rp 6.500–7.000/kg'], pesimis: ['Rp 3–6 juta', 'Rp 5.800–6.300/kg'] },
+        avgPrice: 6500, predictedPrice: 6800 },
+    },
+    gunungkidul: {
+      profit: { name: 'Kacang Tanah', emoji: '🥜', confidence: 79, risk: '🟢 Risiko Rendah',
+        time: 'November–Desember 2026', timeSub: 'Awal musim hujan',
+        price: 'Rp 14.000/kg', priceSub: '↑ 10% dari bulan lalu',
+        yield: '2–3 ton', harvest: '90–100 hari',
+        reasoning: 'Gunungkidul sudah lama jadi sentra kacang tanah karena tanahnya berkapur dan tahan kering. Pabrik kacang dan industri rumahan selalu butuh, jadi pasti laku. Modalnya juga tidak besar, cocok untuk lahan kering.',
+        scenarios: { optimis: ['Rp 20–28 juta', 'Rp 15.500–17.000/kg'], normal: ['Rp 10–16 juta', 'Rp 13.000–14.500/kg'], pesimis: ['Rp 3–7 juta', 'Rp 10.500–12.000/kg'] },
+        avgPrice: 12500, predictedPrice: 14000 },
+      safe: { name: 'Singkong', emoji: '🥔', confidence: 86, risk: '🟢 Risiko Rendah',
+        time: 'Bisa kapan saja', timeSub: 'Tahan cuaca kering',
+        price: 'Rp 1.800/kg', priceSub: 'Stabil 12 bulan terakhir',
+        yield: '15–20 ton', harvest: '8–10 bulan',
+        reasoning: 'Singkong sangat cocok untuk Gunungkidul karena tahan kering dan tidak perlu dirawat terus-menerus. Pabrik tepung dan tape selalu butuh singkong. Modalnya kecil, risikonya hampir tidak ada.',
+        scenarios: { optimis: ['Rp 18–28 juta', 'Rp 2.000–2.300/kg'], normal: ['Rp 10–16 juta', 'Rp 1.700–1.900/kg'], pesimis: ['Rp 4–8 juta', 'Rp 1.300–1.600/kg'] },
+        avgPrice: 1600, predictedPrice: 1800 },
+    },
+    klaten: {
+      profit: { name: 'Tembakau', emoji: '🌿', confidence: 73, risk: '🟡 Risiko Sedang',
+        time: 'April–Mei 2026', timeSub: 'Sebelum kemarau penuh',
+        price: 'Rp 65.000/kg', priceSub: 'Sudah ada kontrak gudang',
+        yield: '1,5–2 ton', harvest: '120–140 hari',
+        reasoning: 'Petani Klaten sudah biasa kerja sama dengan gudang tembakau di Solo. Harga per kilo sangat tinggi, tapi memang harus paham cara menjemurnya. Kalau Bapak/Ibu sudah pengalaman atau punya jaringan ke gudang pembeli, ini pilihan yang menguntungkan.',
+        scenarios: { optimis: ['Rp 50–75 juta', 'Rp 70.000–80.000/kg'], normal: ['Rp 25–40 juta', 'Rp 60.000–68.000/kg'], pesimis: ['Rp 8–18 juta', 'Rp 45.000–55.000/kg'] },
+        avgPrice: 60000, predictedPrice: 65000 },
+      safe: { name: 'Padi', emoji: '🌾', confidence: 85, risk: '🟢 Risiko Rendah',
+        time: 'Mei–Juni 2026', timeSub: 'Musim tanam ke-2',
+        price: 'Rp 6.900/kg GKP', priceSub: '↑ 4% dari bulan lalu',
+        yield: '5,5–6,5 ton', harvest: '110–120 hari',
+        reasoning: 'Klaten adalah salah satu lumbung padi Jawa Tengah, airnya selalu lancar dari Bengawan Solo. Harga gabah pasti dibeli pemerintah, jadi tidak akan rugi. Biaya tanamnya juga lebih hemat karena di sini sudah skala besar.',
+        scenarios: { optimis: ['Rp 14–19 juta', 'Rp 7.300–7.900/kg'], normal: ['Rp 8–12 juta', 'Rp 6.600–7.100/kg'], pesimis: ['Rp 3–7 juta', 'Rp 5.900–6.400/kg'] },
+        avgPrice: 6600, predictedPrice: 6900 },
+    },
+    magelang: {
+      profit: { name: 'Cabai Rawit', emoji: '🌶️', confidence: 77, risk: '🟡 Risiko Sedang',
+        time: 'Maret–April 2026', timeSub: 'Akhir musim hujan',
+        price: 'Rp 52.000/kg', priceSub: '↑ 18% dari bulan lalu',
+        yield: '6–8 ton', harvest: '80–95 hari',
+        reasoning: 'Magelang itu sejuk, sangat pas untuk cabai rawit. Harga lagi melonjak karena cabai langka di pasar nasional. Tapi cabai memang manja, jadi pastikan ada pengairan yang baik kalau cuaca lagi tidak menentu.',
+        scenarios: { optimis: ['Rp 45–80 juta', 'Rp 58.000–68.000/kg'], normal: ['Rp 20–38 juta', 'Rp 45.000–52.000/kg'], pesimis: ['Rp 5–15 juta', 'Rp 30.000–40.000/kg'] },
+        avgPrice: 48000, predictedPrice: 52000 },
+      safe: { name: 'Sayuran Daun', emoji: '🥬', confidence: 82, risk: '🟢 Risiko Rendah',
+        time: 'Sepanjang tahun', timeSub: 'Cepat panen',
+        price: 'Rp 6.000/kg', priceSub: 'Stabil',
+        yield: '8–12 ton/siklus', harvest: '40–60 hari',
+        reasoning: 'Udara sejuk Magelang sangat cocok untuk sayuran daun seperti sawi, kangkung, atau bayam. Cepat panen jadi modal cepat balik. Pasar lokal dan Jakarta selalu butuh, jadi tidak akan tersisa di rumah.',
+        scenarios: { optimis: ['Rp 12–18 juta/siklus', 'Rp 6.800–7.500/kg'], normal: ['Rp 6–10 juta/siklus', 'Rp 5.500–6.300/kg'], pesimis: ['Rp 2–5 juta/siklus', 'Rp 4.000–5.000/kg'] },
+        avgPrice: 5500, predictedPrice: 6000 },
+    },
+    brebes: {
+      profit: { name: 'Bawang Merah', emoji: '🧅', confidence: 88, risk: '🟢 Risiko Rendah',
+        time: 'April–Mei 2026', timeSub: 'Pusat bawang nasional',
+        price: 'Rp 30.000/kg', priceSub: '↑ 15% dari bulan lalu',
+        yield: '9–11 ton', harvest: '60–75 hari',
+        reasoning: 'Brebes itu sentra bawang merah nasional — semuanya sudah lengkap di sini, dari bibit, gudang, sampai pengepul besar. Harga sedang naik. Untungnya besar dan risikonya pun lebih kecil dibanding daerah lain.',
+        scenarios: { optimis: ['Rp 80–120 juta', 'Rp 35.000–42.000/kg'], normal: ['Rp 35–55 juta', 'Rp 26.000–32.000/kg'], pesimis: ['Rp 12–22 juta', 'Rp 18.000–24.000/kg'] },
+        avgPrice: 27000, predictedPrice: 30000 },
+      safe: { name: 'Bawang Merah', emoji: '🧅', confidence: 86, risk: '🟢 Risiko Rendah',
+        time: 'April–Mei 2026', timeSub: 'Tanaman unggulan',
+        price: 'Rp 30.000/kg', priceSub: '↑ 15% dari bulan lalu',
+        yield: '9–11 ton', harvest: '60–75 hari',
+        reasoning: 'Untuk Brebes, bawang merah tetap pilihan paling aman. Bahkan kalau harga turun, tetap banyak pembeli besar yang menampung. Anggap saja ini jaminan tersendiri buat petani Brebes.',
+        scenarios: { optimis: ['Rp 70–100 juta', 'Rp 33.000–38.000/kg'], normal: ['Rp 30–48 juta', 'Rp 26.000–31.000/kg'], pesimis: ['Rp 10–20 juta', 'Rp 19.000–25.000/kg'] },
+        avgPrice: 27000, predictedPrice: 30000 },
+    },
+    malang: {
+      profit: { name: 'Kentang', emoji: '🥔', confidence: 80, risk: '🟡 Risiko Sedang',
+        time: 'Mei–Juli 2026', timeSub: 'Musim kering, udara sejuk',
+        price: 'Rp 14.000/kg', priceSub: '↑ 9% dari bulan lalu',
+        yield: '18–22 ton', harvest: '90–120 hari',
+        reasoning: 'Lahan tinggi Malang sangat cocok untuk kentang yang dipakai bahan keripik. Pabrik snack besar selalu butuh kentang ini. Untungnya menggiurkan, tapi modal awal cukup besar dan harus rajin cek penyakit daun.',
+        scenarios: { optimis: ['Rp 90–135 juta', 'Rp 16.000–18.500/kg'], normal: ['Rp 40–70 juta', 'Rp 13.000–15.000/kg'], pesimis: ['Rp 12–28 juta', 'Rp 9.500–12.000/kg'] },
+        avgPrice: 12500, predictedPrice: 14000 },
+      safe: { name: 'Wortel', emoji: '🥕', confidence: 83, risk: '🟢 Risiko Rendah',
+        time: 'Mei–Agustus 2026', timeSub: 'Udara sejuk pas',
+        price: 'Rp 8.500/kg', priceSub: '↑ 6% dari bulan lalu',
+        yield: '20–25 ton', harvest: '80–100 hari',
+        reasoning: 'Wortel di Malang punya pasar yang stabil — pasar tradisional, supermarket, sampai eksportir kecil. Tidak gampang kena penyakit seperti kentang. Untungnya lumayan dan modalnya tidak segede kentang.',
+        scenarios: { optimis: ['Rp 50–80 juta', 'Rp 9.500–11.000/kg'], normal: ['Rp 25–42 juta', 'Rp 7.800–9.000/kg'], pesimis: ['Rp 8–18 juta', 'Rp 5.800–7.200/kg'] },
+        avgPrice: 7800, predictedPrice: 8500 },
+    },
+    jember: {
+      profit: { name: 'Edamame', emoji: '🫛', confidence: 78, risk: '🟡 Risiko Sedang',
+        time: 'April–Mei 2026', timeSub: 'Sudah ada pembeli pasti',
+        price: 'Rp 12.000/kg', priceSub: 'Harga kontrak',
+        yield: '6–8 ton', harvest: '65–80 hari',
+        reasoning: 'Jember itu pusat edamame Indonesia, banyak yang dikirim sampai Jepang dan Singapura. Kalau dapat kontrak dengan PT Mitratani atau pabrik lain, untungnya pasti. Tapi kualitasnya harus bagus karena standarnya ekspor.',
+        scenarios: { optimis: ['Rp 40–62 juta', 'Rp 13.500–15.000/kg'], normal: ['Rp 18–32 juta', 'Rp 11.000–12.500/kg'], pesimis: ['Rp 5–14 juta', 'Rp 8.500–10.500/kg'] },
+        avgPrice: 11000, predictedPrice: 12000 },
+      safe: { name: 'Kedelai', emoji: '🫘', confidence: 81, risk: '🟢 Risiko Rendah',
+        time: 'April–Juni 2026', timeSub: 'Awal kemarau',
+        price: 'Rp 10.500/kg', priceSub: '↑ 7% dari bulan lalu',
+        yield: '1,8–2,5 ton', harvest: '85–95 hari',
+        reasoning: 'Kedelai di Jember dapat bantuan dari pemerintah, dan pengrajin tempe-tahu selalu butuh. Risikonya kecil karena harga dijaga, biayanya juga tidak mahal. Cocok kalau Bapak/Ibu mau yang aman saja.',
+        scenarios: { optimis: ['Rp 8–14 juta', 'Rp 11.500–13.000/kg'], normal: ['Rp 4–7 juta', 'Rp 10.000–11.000/kg'], pesimis: ['Rp 1–3 juta', 'Rp 8.000–9.500/kg'] },
+        avgPrice: 9800, predictedPrice: 10500 },
+    },
+    banyuwangi: {
+      profit: { name: 'Buah Naga', emoji: '🐉', confidence: 75, risk: '🟡 Risiko Sedang',
+        time: 'Tanam Maret 2026', timeSub: 'Panen mulai Oktober',
+        price: 'Rp 18.000/kg', priceSub: '↑ 12% dari bulan lalu',
+        yield: '10–15 ton', harvest: 'Setiap 6 bulan',
+        reasoning: 'Banyuwangi sudah jadi sentra buah naga dengan banyak yang dikirim ke Bali dan Jakarta. Untungnya sangat besar untuk lahan tetap. Tapi modal awal besar untuk bikin tiang panjat, dan harus sabar 1–2 musim pertama sebelum hasilnya bagus.',
+        scenarios: { optimis: ['Rp 90–140 juta', 'Rp 22.000–26.000/kg'], normal: ['Rp 40–70 juta', 'Rp 16.000–20.000/kg'], pesimis: ['Rp 10–25 juta', 'Rp 12.000–15.000/kg'] },
+        avgPrice: 16500, predictedPrice: 18000 },
+      safe: { name: 'Jeruk Siam', emoji: '🍊', confidence: 79, risk: '🟢 Risiko Rendah',
+        time: 'Pemeliharaan rutin', timeSub: 'Panen utama Juli–September',
+        price: 'Rp 9.000/kg', priceSub: 'Stabil',
+        yield: '20–30 ton', harvest: 'Tahunan',
+        reasoning: 'Jeruk siam Banyuwangi terkenal di pasar tradisional, sudah ada banyak penampung. Kalau Bapak/Ibu punya lahan tetap, ini pilihan yang bagus untuk pendapatan tahunan. Harganya jarang anjlok.',
+        scenarios: { optimis: ['Rp 180–270 juta', 'Rp 10.500–12.000/kg'], normal: ['Rp 90–150 juta', 'Rp 8.500–9.500/kg'], pesimis: ['Rp 30–70 juta', 'Rp 6.500–8.000/kg'] },
+        avgPrice: 8200, predictedPrice: 9000 },
+    },
+    bogor: {
+      profit: { name: 'Pakcoy', emoji: '🥬', confidence: 82, risk: '🟢 Risiko Rendah',
+        time: 'Sepanjang tahun', timeSub: 'Panen 35–45 hari sekali',
+        price: 'Rp 7.500/kg', priceSub: '↑ 8% dari bulan lalu',
+        yield: '10–14 ton/siklus', harvest: '35–45 hari',
+        reasoning: 'Bogor itu dekat Jakarta, jadi pasarnya besar untuk sayuran segar. Pakcoy cepat panen, jadi modal cepat balik. Untungnya bagus dan risikonya kecil — yang penting pengairan terjaga.',
+        scenarios: { optimis: ['Rp 18–28 juta/siklus', 'Rp 8.500–10.000/kg'], normal: ['Rp 9–14 juta/siklus', 'Rp 7.000–8.000/kg'], pesimis: ['Rp 3–7 juta/siklus', 'Rp 5.000–6.500/kg'] },
+        avgPrice: 7000, predictedPrice: 7500 },
+      safe: { name: 'Ubi Jalar', emoji: '🍠', confidence: 84, risk: '🟢 Risiko Rendah',
+        time: 'April–Mei 2026', timeSub: 'Awal kemarau',
+        price: 'Rp 4.500/kg', priceSub: 'Harga stabil',
+        yield: '15–20 ton', harvest: '110–130 hari',
+        reasoning: 'Ubi jalar Bogor (apalagi Cilembu) sudah punya nama, pembeli pasti banyak. Risikonya rendah, modal juga tidak mahal. Cocok untuk Bapak/Ibu yang baru mulai dan ingin pendapatan stabil.',
+        scenarios: { optimis: ['Rp 16–24 juta', 'Rp 5.200–6.000/kg'], normal: ['Rp 8–13 juta', 'Rp 4.200–4.800/kg'], pesimis: ['Rp 3–6 juta', 'Rp 3.200–4.000/kg'] },
+        avgPrice: 4200, predictedPrice: 4500 },
+    },
+    karawang: {
+      profit: { name: 'Padi Premium', emoji: '🌾', confidence: 83, risk: '🟢 Risiko Rendah',
+        time: 'Mei–Juni 2026', timeSub: 'Musim tanam ke-2',
+        price: 'Rp 7.500/kg GKP', priceSub: 'Varietas premium',
+        yield: '6–7 ton', harvest: '110–120 hari',
+        reasoning: 'Karawang lumbung padi Jawa Barat, airnya lancar dari Jatiluhur. Untuk untung lebih besar, coba tanam beras premium seperti Mentik Wangi atau Pandanwangi — harganya 15–20% lebih mahal dari beras biasa.',
+        scenarios: { optimis: ['Rp 18–24 juta', 'Rp 8.200–9.000/kg'], normal: ['Rp 11–15 juta', 'Rp 7.200–7.800/kg'], pesimis: ['Rp 5–9 juta', 'Rp 6.200–7.000/kg'] },
+        avgPrice: 7100, predictedPrice: 7500 },
+      safe: { name: 'Padi', emoji: '🌾', confidence: 87, risk: '🟢 Risiko Rendah',
+        time: 'Mei–Juni 2026', timeSub: 'Musim tanam ke-2',
+        price: 'Rp 6.800/kg GKP', priceSub: '↑ 5% dari bulan lalu',
+        yield: '5,5–6,5 ton', harvest: '110–120 hari',
+        reasoning: 'Karawang itu salah satu lumbung padi terbesar Indonesia. Harga gabah dijamin pemerintah dan pengepulnya banyak. Pilihan paling aman, hampir tidak ada risiko, cocok untuk petani yang ingin tenang.',
+        scenarios: { optimis: ['Rp 13–18 juta', 'Rp 7.300–7.900/kg'], normal: ['Rp 8–12 juta', 'Rp 6.500–7.000/kg'], pesimis: ['Rp 3–6 juta', 'Rp 5.800–6.300/kg'] },
+        avgPrice: 6500, predictedPrice: 6800 },
+    },
+    garut: {
+      profit: { name: 'Tomat', emoji: '🍅', confidence: 76, risk: '🟡 Risiko Sedang',
+        time: 'Maret–Mei 2026', timeSub: 'Iklim sejuk',
+        price: 'Rp 9.500/kg', priceSub: '↑ 14% dari bulan lalu',
+        yield: '20–30 ton', harvest: '80–100 hari',
+        reasoning: 'Lahan tinggi Garut sangat pas untuk tomat berkualitas. Pabrik saus dan pasar Jakarta selalu butuh banyak. Untungnya bagus, tapi tomat memang harganya naik-turun cepat, jadi siap-siap saja.',
+        scenarios: { optimis: ['Rp 60–90 juta', 'Rp 11.000–13.000/kg'], normal: ['Rp 25–45 juta', 'Rp 8.500–10.000/kg'], pesimis: ['Rp 5–18 juta', 'Rp 5.500–7.500/kg'] },
+        avgPrice: 8500, predictedPrice: 9500 },
+      safe: { name: 'Kubis', emoji: '🥬', confidence: 81, risk: '🟢 Risiko Rendah',
+        time: 'April–Juli 2026', timeSub: 'Iklim sejuk',
+        price: 'Rp 4.200/kg', priceSub: 'Stabil',
+        yield: '25–35 ton', harvest: '90–100 hari',
+        reasoning: 'Garut salah satu penghasil kubis Jawa Barat. Pasar tradisional dan rumah makan selalu butuh, jadi tidak akan tersisa. Modalnya hemat, cocok untuk lahan luas dan Bapak/Ibu yang ingin aman.',
+        scenarios: { optimis: ['Rp 25–40 juta', 'Rp 4.800–5.500/kg'], normal: ['Rp 12–22 juta', 'Rp 3.900–4.500/kg'], pesimis: ['Rp 4–9 juta', 'Rp 2.800–3.700/kg'] },
+        avgPrice: 3900, predictedPrice: 4200 },
+    },
+    lombok: {
+      profit: { name: 'Tembakau Virginia', emoji: '🌿', confidence: 74, risk: '🟡 Risiko Sedang',
+        time: 'April–Mei 2026', timeSub: 'Kontrak gudang',
+        price: 'Rp 60.000/kg', priceSub: 'Kontrak tetap',
+        yield: '1,5–2 ton', harvest: '120–140 hari',
+        reasoning: 'Petani Lombok Tengah biasanya kerja sama dengan pabrik rokok besar seperti Sampoerna atau Djarum. Untungnya sangat menggiurkan per kilo. Tapi harus pintar menjemur dan terikat dengan gudang pembeli.',
+        scenarios: { optimis: ['Rp 45–70 juta', 'Rp 65.000–75.000/kg'], normal: ['Rp 22–38 juta', 'Rp 55.000–63.000/kg'], pesimis: ['Rp 7–16 juta', 'Rp 42.000–50.000/kg'] },
+        avgPrice: 55000, predictedPrice: 60000 },
+      safe: { name: 'Jagung', emoji: '🌽', confidence: 80, risk: '🟢 Risiko Rendah',
+        time: 'November 2026', timeSub: 'Awal hujan',
+        price: 'Rp 5.000/kg', priceSub: '↑ 6% dari bulan lalu',
+        yield: '4–5 ton', harvest: '95–110 hari',
+        reasoning: 'Lombok Tengah cocok untuk jagung di musim hujan, hujannya cukup. Peternak ayam di NTB selalu butuh jagung, jadi pasarnya pasti. Risikonya rendah dan biayanya juga hemat.',
+        scenarios: { optimis: ['Rp 8–12 juta', 'Rp 5.500–6.000/kg'], normal: ['Rp 4–7 juta', 'Rp 4.600–5.200/kg'], pesimis: ['Rp 1–3 juta', 'Rp 3.500–4.200/kg'] },
+        avgPrice: 4500, predictedPrice: 5000 },
+    },
+  };
+
+  // ════════════════════════════════════════
+  //  ALTERNATIVE CHANNELS PER REGION
+  // ════════════════════════════════════════
+  const altChannels = {
+    sleman: [
+      { icon: '🏪', name: 'Koperasi Tani Makmur Sleman', detail: 'Jl. Magelang KM 8 · Pickup tersedia', price: 'Rp 4.500/kg' },
+      { icon: '🏬', name: 'TaniHub Yogyakarta', detail: 'Platform e-commerce agri', price: 'Rp 4.700/kg' },
+      { icon: '🏭', name: 'BULOG Subdivre Yogyakarta', detail: 'Untuk volume ≥1 ton', price: 'Rp 4.450/kg' },
+    ],
+    bantul: [
+      { icon: '🏪', name: 'Koperasi Sumber Tani Bantul', detail: 'Pickup harian', price: 'Rp 4.500/kg' },
+      { icon: '🏬', name: 'Sayurbox Yogyakarta', detail: 'Online marketplace', price: 'Rp 4.650/kg' },
+      { icon: '🏭', name: 'Pasar Induk Giwangan', detail: 'Pasar grosir terbesar Yogya', price: 'Rp 4.800/kg' },
+    ],
+    gunungkidul: [
+      { icon: '🏪', name: 'Koperasi Wonosari Mandiri', detail: 'Pusat ekonomi Gunungkidul', price: 'Rp 4.450/kg' },
+      { icon: '🏭', name: 'BULOG Gunungkidul', detail: 'Volume ≥500 kg', price: 'Rp 4.400/kg' },
+      { icon: '🚛', name: 'Offtaker Wonogiri (Solo)', detail: 'Kontrak musiman', price: 'Rp 4.600/kg' },
+    ],
+    klaten: [
+      { icon: '🏪', name: 'Koperasi Tani Klaten Sejahtera', detail: 'Pickup di lokasi', price: 'Rp 4.550/kg' },
+      { icon: '🏭', name: 'BULOG Klaten', detail: 'Volume ≥1 ton', price: 'Rp 4.500/kg' },
+      { icon: '🏬', name: 'Pasar Induk Solo', detail: '45 km dari Klaten', price: 'Rp 4.700/kg' },
+    ],
+    magelang: [
+      { icon: '🏪', name: 'Koperasi Tani Magelang Raya', detail: 'Sentra dataran tinggi', price: 'Rp 4.500/kg' },
+      { icon: '🏬', name: 'Sayurbox / TaniHub', detail: 'Online, pickup gudang', price: 'Rp 4.700/kg' },
+      { icon: '🏭', name: 'Pasar Induk Muntilan', detail: 'Lokal Magelang', price: 'Rp 4.600/kg' },
+    ],
+    brebes: [
+      { icon: '🏪', name: 'Koperasi Bawang Brebes', detail: 'Khusus bawang merah', price: 'Rp 28.000/kg' },
+      { icon: '🏭', name: 'Pasar Induk Brebes', detail: 'Sentra bawang nasional', price: 'Rp 28.500/kg' },
+      { icon: '🚛', name: 'Eksportir Cirebon', detail: 'Volume ≥2 ton', price: 'Rp 29.000/kg' },
+    ],
+    malang: [
+      { icon: '🏪', name: 'Koperasi Tani Batu', detail: 'Pickup harian', price: 'Rp 4.550/kg' },
+      { icon: '🏬', name: 'TaniHub Malang', detail: 'Platform agri', price: 'Rp 4.700/kg' },
+      { icon: '🏭', name: 'Pasar Induk Gadang', detail: 'Pasar grosir Malang', price: 'Rp 4.800/kg' },
+    ],
+    jember: [
+      { icon: '🏪', name: 'Koperasi Tani Jember', detail: 'Pickup tersedia', price: 'Rp 4.500/kg' },
+      { icon: '🏭', name: 'PT Mitratani Dua Tujuh', detail: 'Offtaker edamame & sayur', price: 'Rp 4.700/kg' },
+      { icon: '🏬', name: 'Pasar Induk Tanjung', detail: 'Pasar grosir Jember', price: 'Rp 4.650/kg' },
+    ],
+    banyuwangi: [
+      { icon: '🏪', name: 'Koperasi Banyuwangi Hijau', detail: 'Pickup harian', price: 'Rp 4.550/kg' },
+      { icon: '🚛', name: 'Eksportir Bali (via Ketapang)', detail: 'Volume ≥2 ton', price: 'Rp 4.800/kg' },
+      { icon: '🏭', name: 'Pasar Induk Banyuwangi', detail: 'Pasar grosir lokal', price: 'Rp 4.700/kg' },
+    ],
+    bogor: [
+      { icon: '🏪', name: 'Koperasi Tani Bogor', detail: 'Pickup harian', price: 'Rp 4.500/kg' },
+      { icon: '🏬', name: 'Sayurbox / HappyFresh', detail: 'Online, pickup gudang', price: 'Rp 4.800/kg' },
+      { icon: '🏭', name: 'Pasar Induk Kemang', detail: 'Sentra Jakarta Selatan', price: 'Rp 4.900/kg' },
+    ],
+    karawang: [
+      { icon: '🏪', name: 'Koperasi Tani Karawang', detail: 'Pickup harian', price: 'Rp 4.500/kg' },
+      { icon: '🏭', name: 'BULOG Karawang', detail: 'Volume ≥1 ton', price: 'Rp 4.450/kg' },
+      { icon: '🏬', name: 'Pasar Induk Cipinang', detail: 'Pasar grosir Jakarta', price: 'Rp 4.800/kg' },
+    ],
+    garut: [
+      { icon: '🏪', name: 'Koperasi Tani Garut Hijau', detail: 'Sentra hortikultura', price: 'Rp 4.550/kg' },
+      { icon: '🏬', name: 'TaniHub Bandung Raya', detail: 'Online, pickup gudang', price: 'Rp 4.750/kg' },
+      { icon: '🏭', name: 'Pasar Induk Caringin', detail: 'Pasar grosir Bandung', price: 'Rp 4.850/kg' },
+    ],
+    lombok: [
+      { icon: '🏪', name: 'Koperasi Tani Lombok Tengah', detail: 'Pickup harian', price: 'Rp 4.450/kg' },
+      { icon: '🏭', name: 'BULOG NTB', detail: 'Volume ≥1 ton', price: 'Rp 4.400/kg' },
+      { icon: '🏬', name: 'Pasar Induk Mandalika', detail: 'Pasar grosir Lombok', price: 'Rp 4.600/kg' },
+    ],
+  };
+
+  // ════════════════════════════════════════
+  //  STEP NAVIGATION
+  // ════════════════════════════════════════
+  function goToStep(n) {
+    if (n === 2) {
+      const kab = document.getElementById('kabupaten').value;
+      const luas = parseFloat(document.getElementById('luas').value);
+      if (!kab) { alert('Pilih kabupaten Bapak/Ibu dulu ya 😊'); return; }
+      if (!luas || luas <= 0) { alert('Tolong isi luas lahannya dulu. Tidak perlu tepat — perkiraan saja sudah cukup. 🙏'); return; }
+      state.kabupaten = kab;
+      state.kabupatenLabel = document.getElementById('kabupaten').selectedOptions[0].text;
+      state.luas = luas;
+    }
+    if (n === 3) {
+      if (!state.priority) { alert('Pilih dulu yang Bapak/Ibu cari: hasil besar atau yang aman saja? 🙏'); return; }
+      state.modal = parseFloat(document.getElementById('modal').value) || 0;
+      renderSummary();
+    }
+    document.querySelectorAll('.step-screen').forEach(el => el.classList.add('hidden'));
+    document.getElementById('step-' + n).classList.remove('hidden');
+    document.getElementById('step-' + n).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function selectPriority(p) {
+    state.priority = p;
+    document.querySelectorAll('.priority-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`.priority-card[data-priority="${p}"]`).classList.add('selected');
+    document.getElementById('btn-step2-next').disabled = false;
+  }
+
+  function renderSummary() {
+    const fmtRp = n => 'Rp ' + n.toLocaleString('id-ID');
+    let html = `
+      <div>📍 <strong>Lahan Bapak/Ibu di:</strong> ${state.kabupatenLabel}</div>
+      <div>🌾 <strong>Luas lahan:</strong> ${state.luas} hektare</div>
+      <div>💰 <strong>Modal yang disiapkan:</strong> ${state.modal > 0 ? fmtRp(state.modal) : '<em>belum diisi (tidak apa-apa)</em>'}</div>
+      <div>🎯 <strong>Yang dicari:</strong> ${state.priority === 'profit' ? 'Hasil yang besar' : 'Yang aman saja'}</div>
+    `;
+    document.getElementById('summary-content').innerHTML = html;
+  }
+
+  // ════════════════════════════════════════
+  //  ANALYSIS LOADING
+  // ════════════════════════════════════════
+  function startAnalysis() {
+    document.querySelectorAll('.step-screen').forEach(el => el.classList.add('hidden'));
+    document.getElementById('loading-screen').classList.remove('hidden');
+    document.getElementById('loading-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const stages = document.querySelectorAll('.loading-stage');
+    let i = 0;
+    function next() {
+      if (i > 0) { stages[i-1].classList.remove('active'); stages[i-1].classList.add('done'); }
+      if (i < stages.length) {
+        stages[i].classList.add('active');
+        i++;
+        setTimeout(next, 900);
+      } else {
+        showResult();
+      }
+    }
+    setTimeout(next, 400);
+  }
+
+  // ════════════════════════════════════════
+  //  RESULT
+  // ════════════════════════════════════════
+  function showResult() {
+    const data = recommendations[state.kabupaten] && recommendations[state.kabupaten][state.priority];
+    if (!data) {
+      alert('Maaf, untuk daerah ini belum ada datanya. Coba pilih kabupaten lain dulu ya 🙏');
+      return;
+    }
+    state.recommendation = data;
+
+    document.getElementById('r-emoji').textContent = data.emoji;
+    document.getElementById('r-name').textContent = data.name;
+    document.getElementById('r-confidence').textContent = data.confidence + '%';
+    document.getElementById('r-risk').textContent = data.risk;
+    document.getElementById('r-loc').textContent = '📍 ' + state.kabupatenLabel.split(',')[0];
+    document.getElementById('r-time').textContent = data.time;
+    document.getElementById('r-time-sub').textContent = data.timeSub;
+    document.getElementById('r-price').textContent = data.price;
+    document.getElementById('r-price-sub').textContent = data.priceSub;
+    document.getElementById('r-yield').textContent = data.yield;
+    document.getElementById('r-harvest').textContent = data.harvest;
+    document.getElementById('r-reasoning').textContent = data.reasoning;
+
+    // Scenarios
+    document.getElementById('sc-optimis-income').textContent = data.scenarios.optimis[0];
+    document.getElementById('sc-optimis-price').textContent = data.scenarios.optimis[1];
+    document.getElementById('sc-normal-income').textContent = data.scenarios.normal[0];
+    document.getElementById('sc-normal-price').textContent = data.scenarios.normal[1];
+    document.getElementById('sc-pesimis-income').textContent = data.scenarios.pesimis[0];
+    document.getElementById('sc-pesimis-price').textContent = data.scenarios.pesimis[1];
+
+    // MFL — set baseline prices
+    document.getElementById('gap-comp-avg').textContent = 'Rp ' + data.avgPrice.toLocaleString('id-ID') + '/kg';
+    document.getElementById('gap-comp-pred').textContent = 'Rp ' + data.predictedPrice.toLocaleString('id-ID') + '/kg';
+
+    // Render alt channels
+    const channels = altChannels[state.kabupaten] || altChannels.sleman;
+    const altList = document.getElementById('alt-list');
+    altList.innerHTML = '';
+    channels.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'alt-card';
+      div.innerHTML = `
+        <div class="alt-icon">${c.icon}</div>
+        <div class="alt-body">
+          <div class="alt-name">${c.name}</div>
+          <div class="alt-detail">${c.detail}</div>
+        </div>
+        <div class="alt-price">${c.price}</div>
+      `;
+      altList.appendChild(div);
+    });
+
+    // Reset gap input
+    document.getElementById('harga-tengkulak').value = '';
+    document.getElementById('gap-result-fair').classList.remove('show');
+    document.getElementById('gap-result-alert').classList.remove('show');
+
+    document.querySelectorAll('.step-screen').forEach(el => el.classList.add('hidden'));
+    document.getElementById('result-screen').classList.remove('hidden');
+    document.getElementById('result-screen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ════════════════════════════════════════
+  //  SCENARIOS
+  // ════════════════════════════════════════
+  function switchScenario(s) {
+    document.querySelectorAll('.scenario-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.scenario-tab[data-scenario="${s}"]`).classList.add('active');
+    document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('sc-' + s).classList.add('active');
+  }
+
+  // ════════════════════════════════════════
+  //  GAP ALERT ENGINE — Core MFL Logic
+  // ════════════════════════════════════════
+  async function checkGap() {
+  const harga = parseFloat(document.getElementById('harga-tengkulak').value);
+  const fairEl = document.getElementById('gap-result-fair');
+  const alertEl = document.getElementById('gap-result-alert');
+
+  if (!harga || harga <= 0 || !state.recommendation) {
+    fairEl.classList.remove('show');
+    alertEl.classList.remove('show');
+    return;
+  }
+
+  const komoditas = state.recommendation.name
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace('bawang merah','bawang_merah')
+    .replace('cabai rawit','cabai_rawit')
+    .replace('kacang tanah','kacang_tanah')
+    .replace('sayuran daun','sayuran_daun');
+
+  const kabupaten = state.kabupaten;
+
+  try {
+    const res = await fetch('/api/gap-check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        komoditas: komoditas,
+        kabupaten: kabupaten,
+        harga_tawaran: harga,
+        luas_ha: state.luas
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.status === 'alert') {
+      document.getElementById('gap-headline').textContent =
+        `Selisih Rp ${data.selisih_per_kg.toLocaleString('id-ID')}/kg`;
+      document.getElementById('gap-sub').innerHTML =
+        `Potensi kehilangan <strong>Rp ${(data.total_loss_rupiah/1000000).toFixed(1)} juta</strong> untuk panen ${state.luas} hektare.`;
+      document.getElementById('gap-comp-tengkulak').textContent =
+        'Rp ' + harga.toLocaleString('id-ID') + '/kg';
+      document.getElementById('anchor-quote').textContent =
+        data.negosiasi_anchor;
+
+      fairEl.classList.remove('show');
+      alertEl.classList.add('show');
+    } else {
+      alertEl.classList.remove('show');
+      fairEl.classList.add('show');
+    }
+
+  } catch(e) {
+    const refPrice = state.recommendation.avgPrice;
+    const gapPct = ((refPrice - harga) / refPrice) * 100;
+    if (gapPct >= 15) {
+      fairEl.classList.remove('show');
+      alertEl.classList.add('show');
+    } else {
+      alertEl.classList.remove('show');
+      fairEl.classList.add('show');
+    }
+  }
+}
+
+  // ════════════════════════════════════════
+  //  WHATSAPP SHARE
+  // ════════════════════════════════════════
+  function shareWhatsApp() {
+    if (!state.recommendation) return;
+    const r = state.recommendation;
+    const text =
+`🌾 *Saran dari PasokanAI*
+
+Halo, ini saran dari PasokanAI untuk lahan saya:
+
+📍 *Lahan di:* ${state.kabupatenLabel}
+🌱 *Luas:* ${state.luas} hektare
+
+✨ *Disarankan tanam:* ${r.name}
+📅 *Mulai tanam:* ${r.time}
+💰 *Perkiraan harga jual:* ${r.price}
+🌾 *Perkiraan hasil:* ${r.yield} per hektare
+⏱️ *Bisa dipanen:* ${r.harvest}
+
+💡 *Penjelasan:* ${r.reasoning}
+
+🛡️ *Tips saat panen:* Sebelum jual ke tengkulak, cek dulu harga di pasaran. Harga rata-rata sekarang sekitar Rp ${r.avgPrice.toLocaleString('id-ID')}/kg.
+
+Bantu lihat juga ya, apakah saran ini cocok 🙏
+
+— PasokanAI
+https://pasokan-ai.netlify.app/`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  }
+
+  // ════════════════════════════════════════
+  //  MISC
+  // ════════════════════════════════════════
+  // ════════════════════════════════════════
+  //  VOICE INPUT (simulasi — Azure Speech-to-Text di Fase 2)
+  // ════════════════════════════════════════
+  function startVoiceInput() {
+    // Untuk demo: simulasikan hasil transcription dengan input contoh
+    // Produksi: akan terhubung ke Azure Speech Services
+    const demo = confirm(
+      '🎙️ Fitur suara akan aktif penuh di versi berikutnya.\n\n' +
+      'Untuk sekarang, contoh ucapan: "Saya punya lahan 1 hektare di Sleman."\n\n' +
+      'Coba isi otomatis dengan contoh ini?'
+    );
+    if (demo) {
+      const sel = document.getElementById('kabupaten');
+      sel.value = 'sleman';
+      document.getElementById('luas').value = 1;
+      // Visual feedback supaya petani tahu input-nya sudah terisi
+      sel.style.borderColor = 'var(--green-500)';
+      setTimeout(() => { sel.style.borderColor = ''; }, 1500);
+    }
+  }
+
+  function scrollToApp() {
+    document.getElementById('app').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function resetApp() {
+    state.kabupaten = ''; state.luas = 0; state.modal = 0; state.priority = '';
+    state.recommendation = null;
+    document.getElementById('kabupaten').value = '';
+    document.getElementById('luas').value = '';
+    document.getElementById('modal').value = '';
+    document.querySelectorAll('.priority-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('btn-step2-next').disabled = true;
+    document.querySelectorAll('.loading-stage').forEach(s => { s.classList.remove('active'); s.classList.remove('done'); });
+    document.querySelectorAll('.step-screen').forEach(el => el.classList.add('hidden'));
+    document.getElementById('step-1').classList.remove('hidden');
+    document.getElementById('app').scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
