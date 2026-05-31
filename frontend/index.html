@@ -1920,16 +1920,25 @@
     return;
   }
 
-  const komoditas = state.recommendation.name
-    .toLowerCase()
-    .replace(/\s+/g, '_')
-    .replace('bawang merah','bawang_merah')
-    .replace('cabai rawit','cabai_rawit')
-    .replace('kacang tanah','kacang_tanah')
-    .replace('sayuran daun','sayuran_daun');
-
+  // FIX #1: Map nama komoditas lebih lengkap, termasuk "Cabai Merah"
+  const namaMap = {
+    'cabai merah':   'cabai',
+    'cabai rawit':   'cabai_rawit',
+    'bawang merah':  'bawang_merah',
+    'bawang putih':  'bawang_putih',
+    'kacang tanah':  'kacang_tanah',
+    'sayuran daun':  'sayuran_daun',
+    'jagung':        'jagung',
+    'padi':          'padi',
+    'singkong':      'singkong',
+    'tomat':         'tomat',
+    'kentang':       'kentang',
+  };
+  const namaAsli = state.recommendation.name.toLowerCase().trim();
+  const komoditas = namaMap[namaAsli] || namaAsli.replace(/\s+/g, '_');
   const kabupaten = state.kabupaten;
 
+  // FIX #2: Coba API, tapi fallback pakai logika lokal yang benar
   try {
     const res = await fetch('/api/gap-check', {
       method: 'POST',
@@ -1942,7 +1951,9 @@
       })
     });
 
+    if (!res.ok) throw new Error('API error: ' + res.status);
     const data = await res.json();
+    if (!data || !data.status) throw new Error('Response kosong');
 
     if (data.status === 'alert') {
       document.getElementById('gap-headline').textContent =
@@ -1951,9 +1962,9 @@
         `Potensi kehilangan <strong>Rp ${(data.total_loss_rupiah/1000000).toFixed(1)} juta</strong> untuk panen ${state.luas} hektare.`;
       document.getElementById('gap-comp-tengkulak').textContent =
         'Rp ' + harga.toLocaleString('id-ID') + '/kg';
-      document.getElementById('anchor-quote').textContent =
-        data.negosiasi_anchor;
-
+      if (data.negosiasi_anchor) {
+        document.getElementById('anchor-quote').textContent = data.negosiasi_anchor;
+      }
       fairEl.classList.remove('show');
       alertEl.classList.add('show');
     } else {
@@ -1962,12 +1973,42 @@
     }
 
   } catch(e) {
+    // FIX #3: Fallback lokal — pakai avgPrice dari recommendations, bukan dari API
     const refPrice = state.recommendation.avgPrice;
-    const gapPct = ((refPrice - harga) / refPrice) * 100;
+    if (!refPrice) {
+      fairEl.classList.add('show');
+      return;
+    }
+
+    const selisih = refPrice - harga;
+    const gapPct  = (selisih / refPrice) * 100;
+
     if (gapPct >= 15) {
+      // Harga tawaran TERLALU MURAH → alert
+      const totalLoss = Math.abs(selisih) * (state.luas * 4500); // estimasi 4500 kg/ha
+      document.getElementById('gap-headline').textContent =
+        `Selisih Rp ${Math.abs(selisih).toLocaleString('id-ID')}/kg`;
+      document.getElementById('gap-sub').innerHTML =
+        `Tawaran ini <strong>${gapPct.toFixed(0)}% di bawah</strong> harga rata-rata pasar (Rp ${refPrice.toLocaleString('id-ID')}/kg). Jangan buru-buru diterima ya 🙏`;
+      document.getElementById('gap-comp-tengkulak').textContent =
+        'Rp ' + harga.toLocaleString('id-ID') + '/kg';
+      document.getElementById('anchor-quote').textContent =
+        `"Pak, harga rata-rata ${state.recommendation.name} di pasar sekarang sekitar Rp ${refPrice.toLocaleString('id-ID')}/kg. Apakah bisa naik mendekati angka itu?"`;
+      fairEl.classList.remove('show');
+      alertEl.classList.add('show');
+    } else if (harga > refPrice * 2) {
+      // Harga TIDAK MASUK AKAL (terlalu tinggi) → minta cek ulang
+      document.getElementById('gap-headline').textContent = `Harga tidak biasa`;
+      document.getElementById('gap-sub').innerHTML =
+        `Tawaran Rp ${harga.toLocaleString('id-ID')}/kg jauh di atas rata-rata pasar (Rp ${refPrice.toLocaleString('id-ID')}/kg). Pastikan angkanya benar ya, Bapak/Ibu.`;
+      document.getElementById('gap-comp-tengkulak').textContent =
+        'Rp ' + harga.toLocaleString('id-ID') + '/kg';
+      document.getElementById('anchor-quote').textContent =
+        `Cek kembali angka yang dimasukkan — harga segini tidak umum untuk ${state.recommendation.name} di daerah ini.`;
       fairEl.classList.remove('show');
       alertEl.classList.add('show');
     } else {
+      // Wajar (dalam 15% dari avgPrice)
       alertEl.classList.remove('show');
       fairEl.classList.add('show');
     }
