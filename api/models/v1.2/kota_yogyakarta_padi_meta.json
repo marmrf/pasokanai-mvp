@@ -1,0 +1,11 @@
+{
+  "district": "kota_yogyakarta",
+  "commodity": "padi",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 25,
+  "floor": 3690.0,
+  "cap": 10275.0,
+  "last_price": 6400.0,
+  "hard_cap_pct": 0.2
+}

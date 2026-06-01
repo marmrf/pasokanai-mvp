@@ -152,6 +152,7 @@ export default function App() {
               recommendation={recommendation}
               districtLabel={districtLabel}
               districtSlug={districtSlug}
+              districtId={districtId}
               luas={parseFloat(luas) || 1}
               buyers={buyers}
               onReset={handleReset}

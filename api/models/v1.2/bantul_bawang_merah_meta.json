@@ -1,0 +1,11 @@
+{
+  "district": "bantul",
+  "commodity": "bawang_merah",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 12450.0,
+  "cap": 39075.0,
+  "last_price": 25000.0,
+  "hard_cap_pct": 0.2
+}

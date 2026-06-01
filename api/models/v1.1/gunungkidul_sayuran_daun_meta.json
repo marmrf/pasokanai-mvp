@@ -1,0 +1,10 @@
+{
+  "district": "gunungkidul",
+  "commodity": "sayuran_daun",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 2580.0,
+  "cap": 7575.0,
+  "last_price": 4850.0
+}

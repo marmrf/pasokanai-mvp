@@ -1,0 +1,10 @@
+{
+  "district": "sleman",
+  "commodity": "jagung",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 2490.0,
+  "cap": 7125.0,
+  "last_price": 4600.0
+}

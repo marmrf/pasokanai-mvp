@@ -1,0 +1,10 @@
+{
+  "district": "kota_yogyakarta",
+  "commodity": "cabai_rawit",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 22500.0,
+  "cap": 78675.0,
+  "last_price": 46000.0
+}

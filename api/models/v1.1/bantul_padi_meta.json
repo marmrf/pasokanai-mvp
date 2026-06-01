@@ -1,0 +1,10 @@
+{
+  "district": "bantul",
+  "commodity": "padi",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 3480.0,
+  "cap": 9900.0,
+  "last_price": 6500.0
+}

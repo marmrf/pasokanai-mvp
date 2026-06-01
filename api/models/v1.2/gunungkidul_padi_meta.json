@@ -1,0 +1,11 @@
+{
+  "district": "gunungkidul",
+  "commodity": "padi",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 3330.0,
+  "cap": 9225.0,
+  "last_price": 6100.0,
+  "hard_cap_pct": 0.2
+}

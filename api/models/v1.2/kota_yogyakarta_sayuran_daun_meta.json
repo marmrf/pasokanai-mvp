@@ -1,0 +1,11 @@
+{
+  "district": "kota_yogyakarta",
+  "commodity": "sayuran_daun",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 2880.0,
+  "cap": 8925.0,
+  "last_price": 5500.0,
+  "hard_cap_pct": 0.2
+}

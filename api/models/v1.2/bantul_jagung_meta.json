@@ -1,0 +1,11 @@
+{
+  "district": "bantul",
+  "commodity": "jagung",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 2400.0,
+  "cap": 6900.0,
+  "last_price": 4500.0,
+  "hard_cap_pct": 0.2
+}

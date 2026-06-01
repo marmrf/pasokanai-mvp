@@ -1,0 +1,11 @@
+{
+  "district": "kulon_progo",
+  "commodity": "sayuran_daun",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 2610.0,
+  "cap": 8250.0,
+  "last_price": 5450.0,
+  "hard_cap_pct": 0.2
+}

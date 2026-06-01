@@ -1,0 +1,10 @@
+{
+  "district": "gunungkidul",
+  "commodity": "cabai_rawit",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 17850.0,
+  "cap": 79425.0,
+  "last_price": 46300.0
+}

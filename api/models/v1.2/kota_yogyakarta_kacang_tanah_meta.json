@@ -1,0 +1,11 @@
+{
+  "district": "kota_yogyakarta",
+  "commodity": "kacang_tanah",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 6990.0,
+  "cap": 21000.0,
+  "last_price": 14000.0,
+  "hard_cap_pct": 0.2
+}

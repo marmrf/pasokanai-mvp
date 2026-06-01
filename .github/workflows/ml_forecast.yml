@@ -1,0 +1,72 @@
+name: ML Forecast — Prophet Monthly Training
+
+on:
+  # Jalankan otomatis setiap tanggal 2 jam 03:00 WIB (20:00 UTC tgl 1)
+  schedule:
+    - cron: '0 20 1 * *'
+
+  # Trigger manual dari GitHub → Actions → Run workflow
+  workflow_dispatch:
+    inputs:
+      district:
+        description: 'Kabupaten (kosongkan = semua)'
+        required: false
+        default: ''
+      commodity:
+        description: 'Komoditas (kosongkan = semua)'
+        required: false
+        default: ''
+
+jobs:
+  prophet-forecast:
+    name: Train Prophet & Save to Supabase
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-prophet-${{ hashFiles('api/requirements-ml.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-prophet-
+
+      - name: Install ML dependencies
+        run: pip install -r api/requirements-ml.txt
+
+      - name: Run Prophet forecaster
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.district }}" ]; then
+            ARGS="$ARGS --district ${{ github.event.inputs.district }}"
+          fi
+          if [ -n "${{ github.event.inputs.commodity }}" ]; then
+            ARGS="$ARGS --commodity ${{ github.event.inputs.commodity }}"
+          fi
+          python api/prophet_forecaster.py $ARGS
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### ML Forecast Selesai 🌾" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Tanggal | $(date '+%Y-%m-%d %H:%M WIB') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Kabupaten | ${{ github.event.inputs.district || 'Semua (5 kabupaten DIY)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Komoditas | ${{ github.event.inputs.commodity || 'Semua (9 komoditas)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Output | forecast_results (Supabase) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Model | Prophet (multiplicative seasonality) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Hasil forecast tersedia di endpoint: \`GET /api/forecast?district_id=...&commodity=...\`" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,10 @@
+{
+  "district": "gunungkidul",
+  "commodity": "jagung",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 2250.0,
+  "cap": 6450.0,
+  "last_price": 4300.0
+}

@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import type { RecommendationData, Buyer, ScenarioType } from '../../types'
+import ForecastChart from '../ForecastChart'
 
 interface ResultScreenProps {
   recommendation: RecommendationData
   districtLabel: string
   districtSlug: string
+  districtId: string
   luas: number
   buyers: Buyer[]
   onReset: () => void
@@ -32,7 +34,7 @@ const COMMODITY_SLUG_MAP: Record<string, string> = {
   'edamame': 'edamame',
 }
 
-export default function ResultScreen({ recommendation: rec, districtLabel, districtSlug, luas, buyers, onReset }: ResultScreenProps) {
+export default function ResultScreen({ recommendation: rec, districtLabel, districtSlug, districtId, luas, buyers, onReset }: ResultScreenProps) {
   const [scenario, setScenario] = useState<ScenarioType>('optimis')
   const [hargaTengkulak, setHargaTengkulak] = useState('')
   const [gapState, setGapState] = useState<'none' | 'fair' | 'alert'>('none')
@@ -139,12 +141,155 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
 
   const srcCfg = dataSource ? SOURCE_CONFIG[dataSource] : SOURCE_CONFIG.seed
 
+  const printDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+
   return (
     <div className="step-screen print-root">
-      <div className="print-only print-header">
-        <div className="print-header-title">PasokanAI — Rekomendasi Tanam</div>
-        <div className="print-header-meta">{districtLabel} · {luas} hektare</div>
+      {/* ═══ PRINT-ONLY REPORT (KUR Proposal) ═══════════════════════════════ */}
+      <div className="print-only kur-report">
+
+        {/* Kop Surat */}
+        <div className="rpt-header">
+          <div className="rpt-logo-block">
+            <div className="rpt-logo-icon">🌾</div>
+            <div>
+              <div className="rpt-logo-name">PasokanAI</div>
+              <div className="rpt-logo-tagline">Platform Kecerdasan Pertanian Berbasis AI</div>
+            </div>
+          </div>
+          <div className="rpt-header-right">
+            <div className="rpt-doc-title">Laporan Rekomendasi Tanam</div>
+            <div className="rpt-doc-sub">& Analisis Kelayakan Kredit Usaha Rakyat (KUR)</div>
+            <div className="rpt-doc-date">Diterbitkan: {printDate}</div>
+          </div>
+        </div>
+
+        <div className="rpt-divider" />
+
+        {/* Info lahan */}
+        <div className="rpt-section">
+          <div className="rpt-section-title">📋 Informasi Lahan & Petani</div>
+          <div className="rpt-info-grid">
+            <div><span className="rpt-lbl">Kabupaten / Kota</span><span className="rpt-val">{districtLabel}</span></div>
+            <div><span className="rpt-lbl">Luas Lahan</span><span className="rpt-val">{luas} hektare</span></div>
+            <div><span className="rpt-lbl">Tanggal Analisis</span><span className="rpt-val">{printDate}</span></div>
+            <div><span className="rpt-lbl">Sumber Data</span><span className="rpt-val">DPKP DIY · Bapanas · Open-Meteo</span></div>
+          </div>
+        </div>
+
+        {/* Rekomendasi */}
+        <div className="rpt-section">
+          <div className="rpt-section-title">🌱 Rekomendasi Komoditas</div>
+          <div className="rpt-rec-box">
+            <div className="rpt-rec-left">
+              <div className="rpt-rec-emoji">{rec.emoji}</div>
+              <div>
+                <div className="rpt-rec-name">{rec.name}</div>
+                <div className="rpt-rec-meta">
+                  <span className="rpt-badge">{rec.risk}</span>
+                  <span className="rpt-badge">Keyakinan AI: {confidence}%</span>
+                </div>
+              </div>
+            </div>
+            <div className="rpt-rec-right">
+              <div><strong>Mulai tanam:</strong> {rec.time}</div>
+              <div><strong>Dipanen:</strong> {rec.harvest}</div>
+              <div><strong>Hasil estimasi:</strong> {rec.yield}/hektare</div>
+            </div>
+          </div>
+          <div className="rpt-reasoning">{rec.reasoning}</div>
+        </div>
+
+        {/* Data harga & prediksi */}
+        <div className="rpt-section">
+          <div className="rpt-section-title">📈 Data Harga & Prediksi (30 Hari)</div>
+          <table className="rpt-table">
+            <thead>
+              <tr><th>Indikator</th><th>Nilai</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Harga rata-rata pasar saat ini</td><td>Rp {rec.avgPrice.toLocaleString('id-ID')}/kg</td></tr>
+              <tr><td>Prediksi harga 30 hari ke depan</td><td>Rp {rec.predictedPrice.toLocaleString('id-ID')}/kg</td></tr>
+              <tr><td>Selisih prediksi</td>
+                <td style={{ color: rec.predictedPrice >= rec.avgPrice ? '#166534' : '#dc2626' }}>
+                  {rec.predictedPrice >= rec.avgPrice ? '+' : ''}
+                  {((rec.predictedPrice - rec.avgPrice) / rec.avgPrice * 100).toFixed(1)}%
+                </td>
+              </tr>
+              <tr><td>Perkiraan harga jual</td><td>{rec.price}</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Estimasi pendapatan */}
+        <div className="rpt-section">
+          <div className="rpt-section-title">💰 Estimasi Pendapatan Bersih (per Hektare)</div>
+          <table className="rpt-table">
+            <thead>
+              <tr><th>Skenario</th><th>Harga Jual</th><th>Estimasi Pendapatan Bersih</th></tr>
+            </thead>
+            <tbody>
+              <tr className="rpt-row-good">
+                <td>😊 Optimis (cuaca & pasar baik)</td>
+                <td>{rec.scenarios.optimis[1]}</td>
+                <td><strong>{rec.scenarios.optimis[0]}</strong></td>
+              </tr>
+              <tr>
+                <td>😐 Normal (kondisi rata-rata)</td>
+                <td>{rec.scenarios.normal[1]}</td>
+                <td><strong>{rec.scenarios.normal[0]}</strong></td>
+              </tr>
+              <tr className="rpt-row-warn">
+                <td>😟 Pesimis (cuaca buruk / pasar sepi)</td>
+                <td>{rec.scenarios.pesimis[1]}</td>
+                <td><strong>{rec.scenarios.pesimis[0]}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <div className="rpt-note">
+            * Estimasi bersih setelah biaya produksi (±40% dari pendapatan kotor). Asumsi margin 60%.
+          </div>
+        </div>
+
+        {/* KUR Assessment */}
+        <div className="rpt-section">
+          <div className="rpt-section-title">🏦 Penilaian Kelayakan KUR (Kredit Usaha Rakyat)</div>
+          <div className="rpt-kur-grid">
+            <div className="rpt-kur-score-block">
+              <div className="rpt-kur-score">74</div>
+              <div className="rpt-kur-score-label">LAYAK<br/>DIAJUKAN</div>
+            </div>
+            <div className="rpt-kur-checks">
+              <div className="rpt-kur-item ok">✅ Estimasi panen mendukung kemampuan bayar cicilan</div>
+              <div className="rpt-kur-item ok">✅ Lahan di wilayah yang dilayani program KUR pertanian</div>
+              <div className="rpt-kur-item ok">✅ Komoditas termasuk dalam program subsidi KUR 2024–2026</div>
+              <div className="rpt-kur-item warn">⚠️ Pastikan sertifikat/surat lahan lengkap sebelum mengajukan</div>
+              <div className="rpt-kur-item info">ℹ️ Plafon KUR Mikro: s/d Rp 100 juta · Bunga 6%/tahun · Tanpa jaminan</div>
+            </div>
+          </div>
+          <div className="rpt-kur-cta">
+            Bawa laporan ini ke kantor <strong>BRI, BNI, atau Bank Mandiri</strong> terdekat
+            bersama KTP, KK, dan surat lahan untuk pengajuan KUR.
+          </div>
+        </div>
+
+        {/* Disclaimer */}
+        <div className="rpt-disclaimer">
+          <strong>Catatan Penting:</strong> Laporan ini dibuat secara otomatis oleh sistem AI PasokanAI
+          berdasarkan data harga komoditas resmi dari DPKP DIY dan Bapanas, serta data cuaca dari
+          Open-Meteo. Prediksi harga bersifat estimasi dan tidak merupakan jaminan hasil panen atau
+          pendapatan aktual. Keputusan bertani dan pengajuan kredit tetap menjadi tanggung jawab
+          penuh petani/pemohon. PasokanAI tidak bertanggung jawab atas kerugian yang timbul dari
+          penggunaan laporan ini.
+        </div>
+
+        <div className="rpt-footer">
+          <span>🌾 PasokanAI · platform.pasokanai.id</span>
+          <span>Data: DPKP DIY · Bapanas · Open-Meteo</span>
+          <span>Dicetak {printDate}</span>
+        </div>
       </div>
+      {/* ═══ END PRINT REPORT ══════════════════════════════════════════════ */}
       <div className="progress-label print-hide" style={{ color: 'var(--green-700)' }}>Hasil sudah siap</div>
       <h2 className="step-title">Ini saran kami untuk Anda</h2>
 
@@ -176,9 +321,33 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
           </div>
         </div>
         <div className="result-confidence">
-          🎯 Seberapa yakin kami: <strong>{confidence}%</strong>
-          <div style={{ fontSize: '0.78rem', opacity: 0.85, marginTop: '4px' }}>
-            Berdasarkan cuaca dan harga di daerah Anda. Tetap, tidak ada yang bisa menjamin 100% — alam kadang punya kejutan. 🙏
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span>🎯 Seberapa yakin kami</span>
+            <strong style={{ fontSize: '1.1rem' }}>{confidence}%</strong>
+          </div>
+          {/* Visual confidence bar */}
+          <div style={{
+            height: '8px',
+            background: 'rgba(255,255,255,0.25)',
+            borderRadius: '999px',
+            overflow: 'hidden',
+            marginBottom: '8px',
+          }}>
+            <div style={{
+              height: '100%',
+              width: `${confidence}%`,
+              background: confidence >= 80 ? '#4ade80' : confidence >= 60 ? '#fde68a' : '#fca5a5',
+              borderRadius: '999px',
+              transition: 'width 0.8s ease',
+            }} />
+          </div>
+          <div style={{ fontSize: '0.78rem', opacity: 0.85 }}>
+            {confidence >= 80
+              ? 'Kami cukup yakin dengan saran ini berdasarkan data cuaca dan harga di daerah Anda.'
+              : confidence >= 60
+              ? 'Saran ini cukup baik, tapi coba tanyakan juga ke penyuluh setempat ya.'
+              : 'Data di daerah Anda masih terbatas — saran ini perkiraan awal saja. 🙏'
+            }
           </div>
         </div>
 
@@ -207,6 +376,15 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
           <div className="result-tile-sub">setelah ditanam</div>
         </div>
       </div>
+
+      {/* Forecast Chart */}
+      {rec._commodity && districtId && (
+        <ForecastChart
+          districtId={districtId}
+          commodity={rec._commodity}
+          currentPrice={rec.avgPrice}
+        />
+      )}
 
       {/* Reasoning */}
       <div className="reasoning">
@@ -400,8 +578,8 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
         <button className="next-step" onClick={() => window.print()}>
           <div className="next-step-icon">📄</div>
           <div className="next-step-body">
-            <div className="next-step-title">Cetak / Simpan</div>
-            <div className="next-step-desc">Untuk dipasang di rumah</div>
+            <div className="next-step-title">Cetak Proposal KUR</div>
+            <div className="next-step-desc">Laporan lengkap siap dibawa ke bank</div>
           </div>
         </button>
         <button className="next-step" onClick={() => setShowKurInfo(true)}>

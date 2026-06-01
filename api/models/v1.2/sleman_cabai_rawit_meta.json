@@ -1,0 +1,11 @@
+{
+  "district": "sleman",
+  "commodity": "cabai_rawit",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 21450.0,
+  "cap": 73350.0,
+  "last_price": 45000.0,
+  "hard_cap_pct": 0.2
+}

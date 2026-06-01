@@ -1,0 +1,10 @@
+{
+  "district": "kulon_progo",
+  "commodity": "cabai",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 15900.0,
+  "cap": 56775.0,
+  "last_price": 33000.0
+}

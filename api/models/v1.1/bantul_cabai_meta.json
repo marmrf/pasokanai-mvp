@@ -1,0 +1,10 @@
+{
+  "district": "bantul",
+  "commodity": "cabai",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 25,
+  "floor": 14910.0,
+  "cap": 55200.0,
+  "last_price": 34000.0
+}

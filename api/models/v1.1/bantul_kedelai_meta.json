@@ -1,0 +1,10 @@
+{
+  "district": "bantul",
+  "commodity": "kedelai",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 5160.0,
+  "cap": 14325.0,
+  "last_price": 9500.0
+}

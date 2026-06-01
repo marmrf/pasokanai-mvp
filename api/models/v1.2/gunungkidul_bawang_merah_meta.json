@@ -1,0 +1,11 @@
+{
+  "district": "gunungkidul",
+  "commodity": "bawang_merah",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 10860.0,
+  "cap": 36225.0,
+  "last_price": 22350.0,
+  "hard_cap_pct": 0.2
+}

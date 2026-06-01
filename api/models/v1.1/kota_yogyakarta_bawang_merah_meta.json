@@ -1,0 +1,10 @@
+{
+  "district": "kota_yogyakarta",
+  "commodity": "bawang_merah",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 13320.0,
+  "cap": 42075.0,
+  "last_price": 26000.0
+}

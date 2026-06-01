@@ -1,0 +1,10 @@
+{
+  "district": "gunungkidul",
+  "commodity": "singkong",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 750.0,
+  "cap": 2400.0,
+  "last_price": 1600.0
+}

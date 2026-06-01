@@ -1,0 +1,11 @@
+{
+  "district": "gunungkidul",
+  "commodity": "cabai",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 15450.0,
+  "cap": 53025.0,
+  "last_price": 31250.0,
+  "hard_cap_pct": 0.2
+}

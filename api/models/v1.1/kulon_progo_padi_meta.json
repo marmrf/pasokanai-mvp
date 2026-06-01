@@ -1,0 +1,10 @@
+{
+  "district": "kulon_progo",
+  "commodity": "padi",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 3390.0,
+  "cap": 9600.0,
+  "last_price": 6200.0
+}

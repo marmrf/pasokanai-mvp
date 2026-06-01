@@ -1,0 +1,7 @@
+# ML-only requirements — digunakan oleh GitHub Actions (ml_forecast.yml)
+# Jangan tambahkan ke requirements.txt utama (terlalu berat untuk Azure Functions)
+prophet==1.1.6
+pandas>=2.0.0
+numpy>=1.24.0
+supabase==2.15.0
+python-dotenv

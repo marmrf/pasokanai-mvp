@@ -1,0 +1,11 @@
+{
+  "district": "sleman",
+  "commodity": "bawang_merah",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 11220.0,
+  "cap": 36000.0,
+  "last_price": 24000.0,
+  "hard_cap_pct": 0.2
+}

@@ -171,9 +171,10 @@ export default function Step1({ districts, districtId, luas, fetchError, onDistr
           <input
             id="luas"
             type="number"
+            inputMode="decimal"
             min="0.1"
             step="0.1"
-            placeholder="Contoh: tulis 1 untuk 1 hektare"
+            placeholder="cth: 1 (untuk 1 hektare)"
             className="form-input"
             value={luas}
             onChange={e => onLuasChange(e.target.value)}

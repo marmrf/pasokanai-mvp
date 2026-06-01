@@ -1,0 +1,11 @@
+{
+  "district": "kulon_progo",
+  "commodity": "kacang_tanah",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 6630.0,
+  "cap": 18750.0,
+  "last_price": 12000.0,
+  "hard_cap_pct": 0.2
+}

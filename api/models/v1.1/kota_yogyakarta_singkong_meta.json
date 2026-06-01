@@ -1,0 +1,10 @@
+{
+  "district": "kota_yogyakarta",
+  "commodity": "singkong",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 960.0,
+  "cap": 2700.0,
+  "last_price": 1800.0
+}

@@ -1,0 +1,10 @@
+{
+  "district": "sleman",
+  "commodity": "singkong",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 900.0,
+  "cap": 2550.0,
+  "last_price": 1600.0
+}

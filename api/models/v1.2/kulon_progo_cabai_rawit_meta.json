@@ -1,0 +1,11 @@
+{
+  "district": "kulon_progo",
+  "commodity": "cabai_rawit",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 20520.0,
+  "cap": 72975.0,
+  "last_price": 45750.0,
+  "hard_cap_pct": 0.2
+}

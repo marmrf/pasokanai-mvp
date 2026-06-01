@@ -1,0 +1,11 @@
+{
+  "district": "gunungkidul",
+  "commodity": "kedelai",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 25,
+  "floor": 4950.0,
+  "cap": 13875.0,
+  "last_price": 9200.0,
+  "hard_cap_pct": 0.2
+}

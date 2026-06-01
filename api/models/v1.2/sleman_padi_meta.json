@@ -1,0 +1,11 @@
+{
+  "district": "sleman",
+  "commodity": "padi",
+  "version": "v1.2",
+  "trained_at": "2026-06-02",
+  "data_points": 29,
+  "floor": 3480.0,
+  "cap": 9750.0,
+  "last_price": 6300.0,
+  "hard_cap_pct": 0.2
+}

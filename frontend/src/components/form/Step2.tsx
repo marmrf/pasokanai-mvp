@@ -29,21 +29,22 @@ export default function Step2({ modal, priority, onModalChange, onPriorityChange
       </p>
 
       <div className="form-group">
-        <label className="form-label">💰 Modal yang sudah Anda siapkan</label>
+        <label className="form-label" htmlFor="modal">💰 Modal yang sudah Anda siapkan</label>
         <div className="input-row">
           <span className="input-suffix">Rp</span>
           <input
             id="modal"
             type="number"
+            inputMode="numeric"
             min="0"
-            placeholder="Contoh: 5000000 untuk 5 juta"
+            placeholder="cth: 5000000 (5 juta)"
             className="form-input"
             value={modal}
             onChange={e => onModalChange(e.target.value)}
           />
         </div>
         <div className="form-hint">
-          Kalau belum tahu pasti atau belum punya, kosongkan saja tidak apa-apa. Kami tetap bisa bantu. 👍
+          Belum tahu pastinya? Kosongkan saja — kami tetap bisa bantu. 👍
         </div>
       </div>
 

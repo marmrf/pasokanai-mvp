@@ -1,0 +1,10 @@
+{
+  "district": "kulon_progo",
+  "commodity": "kedelai",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 5280.0,
+  "cap": 14175.0,
+  "last_price": 9300.0
+}

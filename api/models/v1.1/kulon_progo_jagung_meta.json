@@ -1,0 +1,10 @@
+{
+  "district": "kulon_progo",
+  "commodity": "jagung",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 25,
+  "floor": 2310.0,
+  "cap": 6600.0,
+  "last_price": 4400.0
+}

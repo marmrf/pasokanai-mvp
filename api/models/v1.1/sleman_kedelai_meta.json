@@ -1,0 +1,10 @@
+{
+  "district": "sleman",
+  "commodity": "kedelai",
+  "version": "v1.1",
+  "trained_at": "2026-06-02",
+  "data_points": 24,
+  "floor": 5460.0,
+  "cap": 14775.0,
+  "last_price": 9700.0
+}
