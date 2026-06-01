@@ -64,7 +64,7 @@ def _generate_with_gemini(prompt: str) -> dict | None:
         ],
         "generationConfig": {
             "temperature": 0.35,
-            "maxOutputTokens": 700,
+            "maxOutputTokens": 1200,
         },
     }
 
@@ -81,7 +81,7 @@ def _generate_with_gemini(prompt: str) -> dict | None:
         candidates = data.get("candidates") or []
         if not candidates:
             return None
-        parts = candidates[0].get("content", {}).get("parts") or []
+        parts = [p for p in (candidates[0].get("content", {}).get("parts") or []) if not p.get("thought")]
         text = "".join(p.get("text", "") for p in parts)
         if not text:
             return None

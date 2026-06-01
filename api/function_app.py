@@ -81,7 +81,6 @@ def generate_with_gemini(prompt: str) -> str | None:
         "generationConfig": {
             "temperature": 0.7,
             "maxOutputTokens": 300,
-            "thinkingConfig": {"thinkingBudget": 0},
         },
     }
 

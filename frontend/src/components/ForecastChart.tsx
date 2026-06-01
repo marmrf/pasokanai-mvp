@@ -193,9 +193,6 @@ export default function ForecastChart({ districtId, commodity, currentPrice, fal
           </div>
         </div>
 
-        <div style={{ marginTop: '8px', background: '#fffbeb', borderLeft: '3px solid #f59e0b', borderRadius: '0 8px 8px 0', padding: '6px 10px', fontSize: '0.7rem', color: '#92400e' }}>
-          ⚡ Grafik sederhana — jalankan <code style={{ fontSize: '0.68rem', background: '#fef3c7', padding: '1px 4px', borderRadius: '3px' }}>func start</code> untuk prediksi Prophet ML 90 hari.
-        </div>
       </div>
     )
   }
@@ -578,19 +575,6 @@ export default function ForecastChart({ districtId, commodity, currentPrice, fal
         </div>
       </div>
 
-      {data.forecast_source === 'linear_trend' && (
-        <div style={{
-          marginTop: '8px', fontSize: '0.7rem',
-          background: '#fffbeb', border: '1px solid #fcd34d',
-          borderRadius: '8px', padding: '6px 10px', color: '#92400e',
-        }}>
-          ⚡ Prediksi sementara (tren linear). Jalankan{' '}
-          <code style={{ fontSize: '0.68rem', background: '#fef3c7', padding: '1px 4px', borderRadius: '3px' }}>
-            python api/prophet_forecaster.py
-          </code>{' '}
-          untuk prediksi Prophet ML yang lebih akurat.
-        </div>
-      )}
     </div>
   )
 }
