@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="PasokanAI — Asisten tani yang bantu Bapak/Ibu menentukan tanaman terbaik, waktu yang pas, dan harga jual yang adil. Gratis, mudah, tidak perlu paham teknologi." />
-<title>PasokanAI — Asisten Tani untuk Bapak/Ibu</title>
+<meta name="description" content="PasokanAI — Tanam apa yang cocok? Jual ke siapa yang adil? Kami bantu petani Indonesia jawab dua pertanyaan itu. Gratis, mudah, tidak perlu paham teknologi." />
+<title>PasokanAI — Asisten Tani untuk Petani Indonesia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
@@ -885,16 +885,16 @@
 <!-- Tambahkan ilustrasi petani dengan caping di atas eyebrow untuk versi production -->
 <div class="hero">
   <div class="hero-eyebrow">Asisten Tani · Gratis · Bahasa Indonesia</div>
-  <!-- Headline: bicara langsung ke "Bapak/Ibu", bukan ke "petani" -->
-  <h1>Halo, Bapak/Ibu —<br>kami bantu putuskan <em>tanam apa</em> dan <em>jual ke siapa</em></h1>
+  <!-- Headline: value proposition langsung, tanpa sapaan formal -->
+  <h1><em>Tanam apa</em> yang cocok?<br><em>Jual ke siapa</em> yang adil?<br>Kami bantu jawab.</h1>
   <p class="lead">
-    Cerita sebentar tentang lahan Bapak/Ibu, nanti kami berikan saran:
+    Cerita sebentar tentang lahanmu, nanti kami berikan saran:
     tanaman apa yang cocok, kapan waktu tanam yang pas, perkiraan hasil panen,
     dan harga jual yang wajar. <strong>Tidak perlu paham teknologi.</strong>
   </p>
   <!-- CTA besar, kata kerja yang menenangkan -->
   <button class="hero-cta" onclick="scrollToApp()">
-    🌱 Mulai Cerita ke Kami
+    🌱 Mulai Sekarang — Gratis
   </button>
   <div class="hero-trust">
     <span>✅ Pakai data dari pemerintah</span>
@@ -968,7 +968,7 @@
       </p>
 
       <!-- Kartu input suara — Bapak/Ibu bisa cerita lewat suara, atau isi manual di bawah -->
-      <button type="button" class="voice-card" onclick="startVoiceInput()" aria-label="Cerita lewat suara">
+      <button type="button" class="voice-card" disabled aria-label="Fitur suara segera hadir">
         <div class="voice-mic" aria-hidden="true">
           <!-- SVG ikon mikrofon, inline supaya tidak butuh dependency -->
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
@@ -980,7 +980,7 @@
         </div>
         <div class="voice-text">
           <div class="voice-title">🎙️ Cerita lewat suara</div>
-          <div class="voice-subtitle">Ketuk untuk berbicara — kami akan mengerti</div>
+          <div class="voice-subtitle">🚀 Segera hadir di versi berikutnya</div>
         </div>
       </button>
 
@@ -2032,7 +2032,7 @@ Halo, ini saran dari PasokanAI untuk lahan saya:
 Bantu lihat juga ya, apakah saran ini cocok 🙏
 
 — PasokanAI
-https://pasokan-ai.netlify.app/`;
+https://polite-hill-0063f5500.7.azurestaticapps.net`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   }
