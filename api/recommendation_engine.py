@@ -86,8 +86,8 @@ def _generate_with_gemini(prompt: str) -> dict | None:
         if not text:
             return None
         return json.loads(_clean_json_text(text))
-    except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
-        logger.error(f"Gemini recommendation error: {e}")
+    except (urllib.error.URLError, urllib.error.HTTPError, ValueError):
+        logger.exception("Gemini recommendation error")
         return None
 
 

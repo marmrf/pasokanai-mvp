@@ -21,6 +21,21 @@ if connection_string:
     logger.addHandler(AzureLogHandler(connection_string=connection_string))
 logger.setLevel(logging.INFO)
 
+
+def log_env_status():
+    flags = {
+        "supabase_url": bool(os.getenv("SUPABASE_URL")),
+        "supabase_service_key": bool(os.getenv("SUPABASE_SERVICE_KEY")),
+        "azure_openai_endpoint": bool(os.getenv("AZURE_OPENAI_ENDPOINT")),
+        "azure_openai_key": bool(os.getenv("AZURE_OPENAI_KEY") or os.getenv("AZURE_OPENAI_API_KEY")),
+        "azure_openai_deployment": bool(os.getenv("AZURE_OPENAI_DEPLOYMENT")),
+        "gemini_api_key": bool(os.getenv("GEMINI_API_KEY")),
+        "azure_ml_endpoint": bool(os.getenv("AZURE_ML_ENDPOINT")),
+        "azure_speech_key": bool(os.getenv("AZURE_SPEECH_KEY")),
+        "app_insights": bool(os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")),
+    }
+    logger.info("Env status (redacted): %s", flags)
+
 def create_openai_client():
     azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
     azure_key = os.getenv("AZURE_OPENAI_KEY") or os.getenv("AZURE_OPENAI_API_KEY")
@@ -44,6 +59,7 @@ def create_openai_client():
 
 
 openai_client, MODEL, OPENAI_CONFIGURED = create_openai_client()
+log_env_status()
 
 
 def generate_with_gemini(prompt: str) -> str | None:
@@ -76,7 +92,7 @@ def generate_with_gemini(prompt: str) -> str | None:
         text = "".join(p.get("text", "") for p in parts).strip()
         return text or None
     except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
-        logger.error(f"Gemini error: {e}")
+        logger.exception("Gemini error")
         return None
 
 # Lazy-loaded Supabase client
@@ -511,6 +527,41 @@ def service_status(req: func.HttpRequest) -> func.HttpResponse:
     }
 
     return func.HttpResponse(json.dumps(payload), status_code=200, headers=headers)
+
+
+# ── Health Check ────────────────────────────────────────────────────────────
+@app.route(route="health-check", methods=["GET"])
+def health_check(req: func.HttpRequest) -> func.HttpResponse:
+    """Quick diagnostic endpoint for env + Supabase connectivity."""
+    env_flags = {
+        "SUPABASE_URL": bool(os.getenv("SUPABASE_URL")),
+        "SUPABASE_SERVICE_KEY": bool(os.getenv("SUPABASE_SERVICE_KEY")),
+        "AZURE_OPENAI_ENDPOINT": bool(os.getenv("AZURE_OPENAI_ENDPOINT")),
+        "AZURE_OPENAI_KEY": bool(os.getenv("AZURE_OPENAI_KEY") or os.getenv("AZURE_OPENAI_API_KEY")),
+        "AZURE_OPENAI_DEPLOYMENT": bool(os.getenv("AZURE_OPENAI_DEPLOYMENT")),
+        "AZURE_OPENAI_API_VERSION": bool(os.getenv("AZURE_OPENAI_API_VERSION")),
+        "GEMINI_API_KEY": bool(os.getenv("GEMINI_API_KEY")),
+        "AZURE_SPEECH_KEY": bool(os.getenv("AZURE_SPEECH_KEY")),
+        "APPLICATIONINSIGHTS_CONNECTION_STRING": bool(os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")),
+    }
+
+    sb_test = {"ok": False, "error": None}
+    sb = get_supabase()
+    if sb:
+        try:
+            sb.table("districts").select("id").limit(1).execute()
+            sb_test["ok"] = True
+        except Exception as e:
+            sb_test["error"] = str(e)
+
+    payload = {
+        "env": env_flags,
+        "supabase": sb_test,
+        "openai_configured": OPENAI_CONFIGURED,
+        "gemini_configured": bool(os.getenv("GEMINI_API_KEY")),
+    }
+
+    return func.HttpResponse(json.dumps(payload), status_code=200, headers={"Content-Type": "application/json"})
 
 
 # ── Weather Collection ────────────────────────────────────────────────────────
