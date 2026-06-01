@@ -1,3 +1,4 @@
 openai==2.38.0
 azure-functions==1.21.3
 python-dotenv
+opencensus-ext-azure
