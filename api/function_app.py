@@ -19,43 +19,152 @@ if connection_string:
     logger.addHandler(AzureLogHandler(connection_string=connection_string))
 logger.setLevel(logging.INFO)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
-HARGA_ACUAN = {
-    "sleman":      {"padi": {"avg": 6300, "ref": 6600}, "jagung": {"avg": 4600, "ref": 5200}, "cabai_rawit": {"avg": 45000, "ref": 50000}, "cabai": {"avg": 35000, "ref": 38000}},
-    "bantul":      {"padi": {"avg": 6500, "ref": 6800}, "bawang_merah": {"avg": 25000, "ref": 28000}},
-    "gunungkidul": {"kacang_tanah": {"avg": 12500, "ref": 14000}, "singkong": {"avg": 1600, "ref": 1800}},
-    "klaten":      {"padi": {"avg": 6600, "ref": 6900}, "tembakau": {"avg": 60000, "ref": 65000}},
-    "magelang":    {"cabai_rawit": {"avg": 48000, "ref": 52000}, "sayuran_daun": {"avg": 5500, "ref": 6000}},
-    "brebes":      {"bawang_merah": {"avg": 27000, "ref": 30000}},
-    "malang":      {"kentang": {"avg": 12500, "ref": 14000}, "wortel": {"avg": 7800, "ref": 8500}},
-    "jember":      {"edamame": {"avg": 11000, "ref": 12000}, "kedelai": {"avg": 9800, "ref": 10500}},
+# Lazy-loaded Supabase client
+_supabase = None
+
+def get_supabase():
+    global _supabase
+    if _supabase is None:
+        try:
+            from supabase import create_client
+            url = os.getenv("SUPABASE_URL", "")
+            key = os.getenv("SUPABASE_SERVICE_KEY", "")
+            if url and key:
+                _supabase = create_client(url, key)
+        except Exception as e:
+            logger.warning(f"Supabase init failed: {e}")
+    return _supabase
+
+
+def get_harga_from_supabase(kabupaten: str, komoditas: str) -> dict | None:
+    """Fetch latest price data from Supabase commodity_prices + districts."""
+    sb = get_supabase()
+    if not sb:
+        return None
+    try:
+        # Get district id
+        dist = sb.table("districts").select("id").ilike("name", f"%{kabupaten.replace('_', ' ')}%").limit(1).execute()
+        if not dist.data:
+            return None
+        district_id = dist.data[0]["id"]
+
+        # Get latest avg price
+        price_rows = (
+            sb.table("commodity_prices")
+            .select("price")
+            .eq("district_id", district_id)
+            .eq("commodity", komoditas)
+            .order("price_date", desc=True)
+            .limit(1)
+            .execute()
+        )
+        if not price_rows.data:
+            return None
+        avg_price = float(price_rows.data[0]["price"])
+        ref_price = round(avg_price * 1.13)  # ref ≈ avg + 13% margin
+        return {"avg": avg_price, "ref": ref_price}
+    except Exception as e:
+        logger.warning(f"Supabase price fetch failed: {e}")
+        return None
+
+
+def get_offtakers_from_supabase(komoditas: str, kabupaten: str) -> list:
+    """Fetch buyers from Supabase and calculate distance."""
+    sb = get_supabase()
+    if not sb:
+        return []
+    try:
+        dist_row = sb.table("districts").select("latitude,longitude").ilike("name", f"%{kabupaten.replace('_', ' ')}%").limit(1).execute()
+        if not dist_row.data:
+            return []
+        origin_lat = float(dist_row.data[0]["latitude"])
+        origin_lng = float(dist_row.data[0]["longitude"])
+
+        buyers = (
+            sb.table("buyers")
+            .select("*")
+            .eq("commodity", komoditas)
+            .limit(10)
+            .execute()
+        )
+        result = []
+        for b in (buyers.data or []):
+            lat = float(b.get("latitude") or 0)
+            lng = float(b.get("longitude") or 0)
+            jarak = hitung_jarak(origin_lat, origin_lng, lat, lng)
+            result.append({
+                "nama": b["name"],
+                "tipe": b["buyer_type"],
+                "komoditas": [komoditas],
+                "lat": lat,
+                "lng": lng,
+                "kontak": b.get("contact", ""),
+                "jarak_km": round(jarak),
+            })
+        result.sort(key=lambda x: x["jarak_km"])
+        return result[:3]
+    except Exception as e:
+        logger.warning(f"Supabase buyers fetch failed: {e}")
+        return []
+
+
+def save_offer_to_supabase(kabupaten: str, komoditas: str, harga: float):
+    """Persist middleman offer for analytics."""
+    sb = get_supabase()
+    if not sb:
+        return
+    try:
+        dist = sb.table("districts").select("id").ilike("name", f"%{kabupaten.replace('_', ' ')}%").limit(1).execute()
+        if not dist.data:
+            return
+        sb.table("middleman_offers").insert({
+            "district_id": dist.data[0]["id"],
+            "commodity": komoditas,
+            "offered_price": harga,
+        }).execute()
+    except Exception as e:
+        logger.warning(f"Save offer failed: {e}")
+
+
+# ── Fallback hardcoded prices (used if Supabase unavailable) ──────────────
+HARGA_ACUAN_FALLBACK = {
+    "sleman":       {"padi": {"avg": 6300, "ref": 6600}, "jagung": {"avg": 4600, "ref": 5200}, "cabai_rawit": {"avg": 45000, "ref": 50000}, "cabai": {"avg": 35000, "ref": 38000}},
+    "bantul":       {"padi": {"avg": 6500, "ref": 6800}, "bawang_merah": {"avg": 25000, "ref": 28000}},
+    "gunungkidul":  {"kacang_tanah": {"avg": 12500, "ref": 14000}, "singkong": {"avg": 1600, "ref": 1800}},
+    "kulon_progo":  {"padi": {"avg": 6200, "ref": 6500}, "bawang_merah": {"avg": 24000, "ref": 27000}},
+    "kota_yogyakarta": {"cabai_rawit": {"avg": 46000, "ref": 50000}, "sayuran_daun": {"avg": 5500, "ref": 6000}},
+    "klaten":       {"padi": {"avg": 6600, "ref": 6900}, "tembakau": {"avg": 60000, "ref": 65000}},
+    "magelang":     {"cabai_rawit": {"avg": 48000, "ref": 52000}, "sayuran_daun": {"avg": 5500, "ref": 6000}},
+    "brebes":       {"bawang_merah": {"avg": 27000, "ref": 30000}},
+    "malang":       {"kentang": {"avg": 12500, "ref": 14000}, "wortel": {"avg": 7800, "ref": 8500}},
+    "jember":       {"edamame": {"avg": 11000, "ref": 12000}, "kedelai": {"avg": 9800, "ref": 10500}},
 }
 
-OFFTAKER = [
+OFFTAKER_FALLBACK = [
     {"nama": "Koperasi Tani Makmur Sleman", "tipe": "koperasi", "komoditas": ["padi","jagung"], "lat": -7.728, "lng": 110.405, "kontak": "Pakem, Sleman"},
     {"nama": "KUD Sumber Tani Bantul", "tipe": "koperasi", "komoditas": ["padi","bawang_merah"], "lat": -7.891, "lng": 110.326, "kontak": "Sewon, Bantul"},
-    {"nama": "Koperasi Singkong Karangmojo", "tipe": "koperasi", "komoditas": ["singkong","kacang_tanah"], "lat": -7.970, "lng": 110.630, "kontak": "Karangmojo, Gunungkidul"},
     {"nama": "BULOG Sub Divre Yogyakarta", "tipe": "bulog", "komoditas": ["padi","jagung"], "lat": -7.795, "lng": 110.369, "kontak": "Yogyakarta"},
-    {"nama": "TaniHub", "tipe": "ecommerce", "komoditas": ["cabai_rawit","cabai","sayuran_daun","bawang_merah","kentang","wortel"], "lat": -6.200, "lng": 106.816, "kontak": "Online, pickup mitra"},
-    {"nama": "Sayurbox", "tipe": "ecommerce", "komoditas": ["cabai_rawit","cabai","sayuran_daun","wortel"], "lat": -6.200, "lng": 106.816, "kontak": "Online, kemitraan"},
-    {"nama": "BULOG Sub Divre Malang", "tipe": "bulog", "komoditas": ["padi","jagung","kedelai"], "lat": -7.966, "lng": 112.633, "kontak": "Malang"},
-    {"nama": "Mitratani Dua Tujuh", "tipe": "offtaker", "komoditas": ["edamame","kedelai"], "lat": -8.170, "lng": 113.700, "kontak": "Jember, kontrak ekspor"},
-    {"nama": "Pasar Induk Beringharjo", "tipe": "pasar_induk", "komoditas": ["sayuran_daun","cabai_rawit","cabai","bawang_merah"], "lat": -7.799, "lng": 110.366, "kontak": "Yogyakarta"},
-    {"nama": "Koperasi Bawang Brebes", "tipe": "koperasi", "komoditas": ["bawang_merah"], "lat": -6.872, "lng": 109.040, "kontak": "Larangan, Brebes"},
+    {"nama": "Pasar Induk Giwangan", "tipe": "offtaker", "komoditas": ["cabai","bawang_merah","sayuran_daun","cabai_rawit"], "lat": -7.832, "lng": 110.388, "kontak": "Giwangan, Yogyakarta"},
+    {"nama": "TaniHub Yogyakarta", "tipe": "offtaker", "komoditas": ["cabai","cabai_rawit","sayuran_daun","bawang_merah"], "lat": -7.797, "lng": 110.370, "kontak": "Online, pickup mitra"},
+    {"nama": "Koperasi Singkong Karangmojo", "tipe": "koperasi", "komoditas": ["singkong","kacang_tanah"], "lat": -7.970, "lng": 110.630, "kontak": "Karangmojo, Gunungkidul"},
 ]
 
-KAB_KOORDINAT = {
+KAB_KOORDINAT_FALLBACK = {
     "sleman": {"lat": -7.732, "lng": 110.401},
     "bantul": {"lat": -7.888, "lng": 110.328},
     "gunungkidul": {"lat": -7.966, "lng": 110.616},
+    "kulon_progo": {"lat": -7.900, "lng": 110.160},
+    "kota_yogyakarta": {"lat": -7.797, "lng": 110.370},
     "klaten": {"lat": -7.705, "lng": 110.606},
     "magelang": {"lat": -7.479, "lng": 110.217},
     "brebes": {"lat": -6.871, "lng": 109.042},
     "malang": {"lat": -7.983, "lng": 112.621},
     "jember": {"lat": -8.172, "lng": 113.698},
 }
+
 
 def hitung_jarak(lat1, lng1, lat2, lng2):
     R = 6371
@@ -64,17 +173,19 @@ def hitung_jarak(lat1, lng1, lat2, lng2):
     a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlng/2)**2
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
 
-def cari_offtaker_terdekat(kabupaten, komoditas, max_hasil=3):
-    koordinat = KAB_KOORDINAT.get(kabupaten)
+
+def cari_offtaker_fallback(kabupaten, komoditas, max_hasil=3):
+    koordinat = KAB_KOORDINAT_FALLBACK.get(kabupaten)
     if not koordinat:
         return []
     hasil = []
-    for o in OFFTAKER:
+    for o in OFFTAKER_FALLBACK:
         if komoditas in o["komoditas"]:
             jarak = hitung_jarak(koordinat["lat"], koordinat["lng"], o["lat"], o["lng"])
             hasil.append({**o, "jarak_km": round(jarak)})
     hasil.sort(key=lambda x: x["jarak_km"])
     return hasil[:max_hasil]
+
 
 def buat_anchor(komoditas, kabupaten, harga_tawaran, harga_avg, harga_ref, selisih, luas_ha, total_loss):
     lokasi_label = kabupaten.replace("_", " ").title()
@@ -83,7 +194,7 @@ def buat_anchor(komoditas, kabupaten, harga_tawaran, harga_avg, harga_ref, selis
 Situasi:
 - Petani di {lokasi_label} ingin menjual {komoditas.replace('_',' ')}
 - Harga yang ditawarkan tengkulak: Rp {harga_tawaran:,}/kg
-- Harga rata-rata petani sekitar: Rp {harga_avg:,}/kg  
+- Harga rata-rata petani sekitar: Rp {harga_avg:,}/kg
 - Harga referensi pasar: Rp {harga_ref:,}/kg
 - Selisih: Rp {selisih:,}/kg
 - Luas lahan: {luas_ha} hektare
@@ -92,7 +203,7 @@ Situasi:
 Tulis SATU kalimat negosiasi anchor dalam Bahasa Indonesia yang sederhana, sopan, dan bisa langsung diucapkan petani ke tengkulak. Maksimal 2 kalimat. Gunakan data di atas sebagai argumen. Jangan gunakan kata teknis."""
 
     try:
-        response = client.chat.completions.create(
+        response = openai_client.chat.completions.create(
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=150,
@@ -101,7 +212,8 @@ Tulis SATU kalimat negosiasi anchor dalam Bahasa Indonesia yang sederhana, sopan
         return response.choices[0].message.content.strip()
     except Exception as e:
         logger.error(f"OpenAI error: {e}")
-        return f"Pak/Bu, harga rata-rata petani di {lokasi_label} minggu ini Rp {harga_avg:,}/kg. Tawaran Rp {harga_tawaran:,}/kg selisihnya Rp {selisih:,}/kg. Apakah bisa kita bicarakan lagi?"
+        return f"Pak/Bu, harga rata-rata {komoditas.replace('_',' ')} di {lokasi_label} minggu ini Rp {harga_avg:,}/kg. Tawaran Rp {harga_tawaran:,}/kg selisihnya Rp {selisih:,}/kg. Apakah bisa kita bicarakan lagi?"
+
 
 @app.route(route="gap-check", methods=["POST"])
 def gap_check(req: func.HttpRequest) -> func.HttpResponse:
@@ -118,40 +230,31 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
     try:
         body = req.get_json()
     except Exception:
-        return func.HttpResponse(
-            json.dumps({"error": "Request body tidak valid"}),
-            status_code=400, headers=headers
-        )
+        return func.HttpResponse(json.dumps({"error": "Request body tidak valid"}), status_code=400, headers=headers)
 
     komoditas = str(body.get("komoditas", "")).lower().strip().replace(" ", "_")
     kabupaten = str(body.get("kabupaten", "")).lower().strip()
     harga_tawaran = body.get("harga_tawaran", 0)
     luas_ha = body.get("luas_ha", 1)
 
-    logger.info(f"Gap check request - komoditas: {komoditas}, kabupaten: {kabupaten}, harga: {harga_tawaran}")
+    logger.info(f"Gap check — komoditas: {komoditas}, kabupaten: {kabupaten}, harga: {harga_tawaran}")
 
     if not komoditas or not kabupaten:
-        return func.HttpResponse(
-            json.dumps({"error": "komoditas dan kabupaten wajib diisi"}),
-            status_code=400, headers=headers
-        )
+        return func.HttpResponse(json.dumps({"error": "komoditas dan kabupaten wajib diisi"}), status_code=400, headers=headers)
 
     try:
         harga_tawaran = float(harga_tawaran)
         luas_ha = max(0.1, min(float(luas_ha), 1000))
     except Exception:
-        return func.HttpResponse(
-            json.dumps({"error": "harga_tawaran dan luas_ha harus angka"}),
-            status_code=400, headers=headers
-        )
+        return func.HttpResponse(json.dumps({"error": "harga_tawaran dan luas_ha harus angka"}), status_code=400, headers=headers)
 
     if harga_tawaran <= 0 or harga_tawaran > 10_000_000:
-        return func.HttpResponse(
-            json.dumps({"error": "harga_tawaran tidak valid"}),
-            status_code=400, headers=headers
-        )
+        return func.HttpResponse(json.dumps({"error": "harga_tawaran tidak valid"}), status_code=400, headers=headers)
 
-    data_harga = HARGA_ACUAN.get(kabupaten, {}).get(komoditas)
+    # Try Supabase first, fall back to hardcoded
+    data_harga = get_harga_from_supabase(kabupaten, komoditas)
+    if not data_harga:
+        data_harga = HARGA_ACUAN_FALLBACK.get(kabupaten, {}).get(komoditas)
     if not data_harga:
         return func.HttpResponse(
             json.dumps({"error": f"Data harga untuk {komoditas} di {kabupaten} belum tersedia"}),
@@ -172,19 +275,24 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
     estimasi_yield_kg = YIELD_PER_HA.get(komoditas, 5000) * luas_ha
     total_loss = max(0, selisih * estimasi_yield_kg)
 
-    offtaker = cari_offtaker_terdekat(kabupaten, komoditas)
+    # Try Supabase buyers first, then fallback
+    offtaker = get_offtakers_from_supabase(komoditas, kabupaten)
+    if not offtaker:
+        offtaker = cari_offtaker_fallback(kabupaten, komoditas)
 
     if gap_pct >= 15:
-        anchor = buat_anchor(
-            komoditas, kabupaten, harga_tawaran,
-            harga_avg, harga_ref, selisih, luas_ha, total_loss
-        )
+        anchor = buat_anchor(komoditas, kabupaten, harga_tawaran, harga_avg, harga_ref, selisih, luas_ha, total_loss)
         status = "alert"
+        # Persist the offer asynchronously (fire and forget)
+        try:
+            save_offer_to_supabase(kabupaten, komoditas, harga_tawaran)
+        except Exception:
+            pass
     else:
         anchor = None
         status = "fair"
 
-    logger.info(f"Gap check result - status: {status}, gap_pct: {round(gap_pct, 1)}, selisih: {round(selisih)}")
+    logger.info(f"Gap check result — status: {status}, gap_pct: {round(gap_pct, 1)}")
 
     result = {
         "status": status,
@@ -201,7 +309,4 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
         "offtaker_terdekat": offtaker
     }
 
-    return func.HttpResponse(
-        json.dumps(result, ensure_ascii=False),
-        status_code=200, headers=headers
-    )
+    return func.HttpResponse(json.dumps(result, ensure_ascii=False), status_code=200, headers=headers)

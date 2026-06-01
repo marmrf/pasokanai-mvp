@@ -1,4 +1,5 @@
-openai==2.38.0
 azure-functions==1.21.3
+openai==2.38.0
 python-dotenv
 opencensus-ext-azure
+supabase==2.15.0
