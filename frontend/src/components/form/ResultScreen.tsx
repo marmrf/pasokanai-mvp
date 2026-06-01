@@ -107,10 +107,50 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
     pesimis: '🛡️ Kalau kondisinya begini, lebih baik ada cadangan tanaman lain seperti kacang tanah, atau ikut asuransi pertanian.',
   }
 
+  const dataSource = rec._source
+
+  const SOURCE_CONFIG: Record<string, { bg: string; border: string; color: string; icon: string; label: string; sub: string }> = {
+    azure_openai: {
+      bg: '#f0fdf4', border: '#86efac', color: '#166534',
+      icon: '🤖',
+      label: 'Dihasilkan AI — Azure OpenAI (GPT-4o-mini)',
+      sub: 'Data harga dari DPKP DIY & Bapanas · Prediksi statistik dari data historis',
+    },
+    statistical_fallback: {
+      bg: '#fffbeb', border: '#fcd34d', color: '#92400e',
+      icon: '📊',
+      label: 'Prediksi Statistik — Azure OpenAI offline',
+      sub: 'Data harga real dari DPKP DIY & Bapanas · Azure OpenAI belum dikonfigurasi (OPENAI_API_KEY)',
+    },
+    seed: {
+      bg: '#fef2f2', border: '#fca5a5', color: '#991b1b',
+      icon: '⚠️',
+      label: 'Data Manual (Seed) — Azure belum terhubung',
+      sub: 'Azure Function tidak berjalan · Jalankan: cd api && func start · Lihat: AZURE-IMPLEMENTATION.md',
+    },
+  }
+
+  const srcCfg = dataSource ? SOURCE_CONFIG[dataSource] : SOURCE_CONFIG.seed
+
   return (
     <div className="step-screen">
       <div className="progress-label" style={{ color: 'var(--green-700)' }}>Hasil sudah siap</div>
       <h2 className="step-title">Ini saran kami untuk Anda</h2>
+
+      {/* Data source indicator — always visible */}
+      <div style={{
+        background: srcCfg.bg,
+        border: `1px solid ${srcCfg.border}`,
+        borderRadius: '10px',
+        padding: '10px 14px',
+        marginBottom: '16px',
+        fontSize: '0.8rem',
+      }}>
+        <div style={{ fontWeight: 700, color: srcCfg.color, marginBottom: '2px' }}>
+          {srcCfg.icon} {srcCfg.label}
+        </div>
+        <div style={{ color: srcCfg.color, opacity: 0.85 }}>{srcCfg.sub}</div>
+      </div>
 
       {/* Hero card */}
       <div className="result-hero">

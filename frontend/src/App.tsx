@@ -106,7 +106,6 @@ export default function App() {
 
   return (
     <>
-      <DevBanner />
       <Header onScrollToApp={scrollToApp} />
       <Hero onScrollToApp={scrollToApp} />
       <Stats />
@@ -164,6 +163,7 @@ export default function App() {
       <MapDashboard />
       <TechSection />
       <Footer />
+      <DevBanner />
     </>
   )
 }

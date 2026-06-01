@@ -97,11 +97,15 @@ export default function DevBanner() {
     <div
       style={{
         background: MODE_BG[mode] ?? '#fffbeb',
-        borderBottom: `1px solid ${mode === 'full' ? '#bbf7d0' : mode === 'fallback' ? '#fecaca' : '#fde68a'}`,
+        borderTop: `2px solid ${mode === 'full' ? '#86efac' : mode === 'fallback' ? '#fca5a5' : '#fcd34d'}`,
         fontFamily: 'monospace',
         fontSize: '0.78rem',
-        position: 'relative',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
         zIndex: 9999,
+        boxShadow: '0 -2px 12px rgba(0,0,0,0.12)',
       }}
     >
       {/* Header bar */}

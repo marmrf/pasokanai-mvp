@@ -330,6 +330,52 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
     return func.HttpResponse(json.dumps(result, ensure_ascii=False), status_code=200, headers=headers)
 
 
+# ── AI Recommendation ────────────────────────────────────────────────────────
+@app.route(route="generate-recommendation", methods=["POST", "OPTIONS"])
+def generate_recommendation_route(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    AI-powered crop recommendation.
+    Reads commodity_prices + weather_data from Supabase,
+    calculates statistical forecast, then asks Azure OpenAI to interpret it.
+    Falls back to template if OpenAI not configured.
+    Body: {district_id, priority}
+    """
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Content-Type": "application/json",
+    }
+    if req.method == "OPTIONS":
+        return func.HttpResponse(status_code=200, headers=headers)
+
+    try:
+        body = req.get_json()
+    except Exception:
+        return func.HttpResponse(json.dumps({"error": "Invalid body"}), status_code=400, headers=headers)
+
+    district_id = body.get("district_id", "").strip()
+    priority = body.get("priority", "profit")
+
+    if not district_id:
+        return func.HttpResponse(json.dumps({"error": "district_id wajib diisi"}), status_code=400, headers=headers)
+
+    from recommendation_engine import generate_recommendation
+    try:
+        rec, source = generate_recommendation(district_id, priority, get_supabase(), openai_client, MODEL)
+    except Exception as e:
+        logger.error(f"generate_recommendation error: {e}")
+        return func.HttpResponse(json.dumps({"error": str(e)}), status_code=500, headers=headers)
+
+    if rec is None:
+        return func.HttpResponse(
+            json.dumps({"error": f"Tidak ada data untuk district ini ({source})"}),
+            status_code=404, headers=headers
+        )
+
+    return func.HttpResponse(json.dumps(rec, ensure_ascii=False), status_code=200, headers=headers)
+
+
 # ── Service Status ────────────────────────────────────────────────────────────
 @app.route(route="service-status", methods=["GET", "OPTIONS"])
 def service_status(req: func.HttpRequest) -> func.HttpResponse:
