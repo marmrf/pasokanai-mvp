@@ -172,8 +172,8 @@ export default function MapDashboard() {
                 Harga terkini: <b>Rp ${d.latestPrice.price.toLocaleString('id-ID')}/kg</b>
               </div>
             ` : '<br/><em style="color:#888">Data harga belum tersedia</em>'}
-            <div style="margin-top:8px;color:#16a34a;font-size:0.85rem">
-              ✅ Data dari Supabase
+            <div style="margin-top:8px;color:#6b7280;font-size:0.8rem">
+              📊 Sumber: DPKP DIY &amp; Bapanas
             </div>
           </div>
         `)
@@ -266,7 +266,7 @@ export default function MapDashboard() {
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '12px', fontSize: '0.8rem', color: 'var(--ink-mute)' }}>
-          Peta: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" style={{ color: 'var(--green-700)' }}>© OpenStreetMap</a> · Data cuaca: <a href="https://open-meteo.com" target="_blank" rel="noreferrer" style={{ color: 'var(--green-700)' }}>Open-Meteo</a>
+          Peta: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" style={{ color: 'var(--green-700)' }}>© OpenStreetMap</a> · Cuaca: <a href="https://open-meteo.com" target="_blank" rel="noreferrer" style={{ color: 'var(--green-700)' }}>Open-Meteo</a> · Harga: DPKP DIY &amp; Bapanas
         </p>
       </div>
     </section>
