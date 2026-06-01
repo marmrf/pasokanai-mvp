@@ -6,6 +6,7 @@ import Header from './components/Header'
 import Hero from './components/Hero'
 import Stats from './components/Stats'
 import HowItWorks from './components/HowItWorks'
+import DevBanner from './components/DevBanner'
 import Step1 from './components/form/Step1'
 import Step2 from './components/form/Step2'
 import Step3 from './components/form/Step3'
@@ -105,6 +106,7 @@ export default function App() {
 
   return (
     <>
+      <DevBanner />
       <Header onScrollToApp={scrollToApp} />
       <Hero onScrollToApp={scrollToApp} />
       <Stats />

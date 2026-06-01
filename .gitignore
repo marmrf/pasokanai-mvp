@@ -40,6 +40,12 @@ Thumbs.db
 .idea/
 *.iml
 
+# ── Supabase local dev ─────────────────────────────────
+.branches/
+supabase/.temp/
+supabase/functions/
+# config.toml dan migrations sengaja di-commit (schema docs)
+
 # ── Secrets (jangan pernah commit!) ──────────────────
 *.pem
 *.key

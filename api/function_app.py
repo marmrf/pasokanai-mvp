@@ -188,6 +188,7 @@ def cari_offtaker_fallback(kabupaten, komoditas, max_hasil=3):
 
 
 def buat_anchor(komoditas, kabupaten, harga_tawaran, harga_avg, harga_ref, selisih, luas_ha, total_loss):
+    """Returns (anchor_text, is_ai_generated)."""
     lokasi_label = kabupaten.replace("_", " ").title()
     prompt = f"""Kamu adalah asisten PasokanAI yang membantu petani Indonesia bernegosiasi harga dengan tengkulak.
 
@@ -209,10 +210,15 @@ Tulis SATU kalimat negosiasi anchor dalam Bahasa Indonesia yang sederhana, sopan
             max_tokens=150,
             temperature=0.7
         )
-        return response.choices[0].message.content.strip()
+        return response.choices[0].message.content.strip(), True
     except Exception as e:
         logger.error(f"OpenAI error: {e}")
-        return f"Pak/Bu, harga rata-rata {komoditas.replace('_',' ')} di {lokasi_label} minggu ini Rp {harga_avg:,}/kg. Tawaran Rp {harga_tawaran:,}/kg selisihnya Rp {selisih:,}/kg. Apakah bisa kita bicarakan lagi?"
+        fallback = (
+            f"Pak/Bu, harga rata-rata {komoditas.replace('_',' ')} di {lokasi_label} "
+            f"minggu ini Rp {harga_avg:,}/kg. Tawaran Rp {harga_tawaran:,}/kg selisihnya "
+            f"Rp {selisih:,}/kg. Apakah bisa kita bicarakan lagi?"
+        )
+        return fallback, False
 
 
 @app.route(route="gap-check", methods=["POST"])
@@ -251,8 +257,9 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
     if harga_tawaran <= 0 or harga_tawaran > 10_000_000:
         return func.HttpResponse(json.dumps({"error": "harga_tawaran tidak valid"}), status_code=400, headers=headers)
 
-    # Try Supabase first, fall back to hardcoded
+    # Try Supabase first, track data source for _meta
     data_harga = get_harga_from_supabase(kabupaten, komoditas)
+    prices_source = "supabase" if data_harga else "fallback"
     if not data_harga:
         data_harga = HARGA_ACUAN_FALLBACK.get(kabupaten, {}).get(komoditas)
     if not data_harga:
@@ -277,25 +284,29 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
 
     # Try Supabase buyers first, then fallback
     offtaker = get_offtakers_from_supabase(komoditas, kabupaten)
+    buyers_source = "supabase" if offtaker else "fallback"
     if not offtaker:
         offtaker = cari_offtaker_fallback(kabupaten, komoditas)
 
+    anchor_is_ai = False
     if gap_pct >= 15:
-        anchor = buat_anchor(komoditas, kabupaten, harga_tawaran, harga_avg, harga_ref, selisih, luas_ha, total_loss)
-        status = "alert"
-        # Persist the offer asynchronously (fire and forget)
+        anchor, anchor_is_ai = buat_anchor(
+            komoditas, kabupaten, harga_tawaran,
+            harga_avg, harga_ref, selisih, luas_ha, total_loss
+        )
+        gap_status = "alert"
         try:
             save_offer_to_supabase(kabupaten, komoditas, harga_tawaran)
         except Exception:
             pass
     else:
         anchor = None
-        status = "fair"
+        gap_status = "fair"
 
-    logger.info(f"Gap check result — status: {status}, gap_pct: {round(gap_pct, 1)}")
+    logger.info(f"Gap check result — status: {gap_status}, gap_pct: {round(gap_pct, 1)}")
 
     result = {
-        "status": status,
+        "status": gap_status,
         "komoditas": komoditas,
         "kabupaten": kabupaten,
         "harga_tawaran": harga_tawaran,
@@ -306,10 +317,86 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
         "estimasi_yield_kg": round(estimasi_yield_kg),
         "total_loss_rupiah": round(total_loss),
         "negosiasi_anchor": anchor,
-        "offtaker_terdekat": offtaker
+        "offtaker_terdekat": offtaker,
+        "_meta": {
+            "prices_source": prices_source,
+            "buyers_source": buyers_source,
+            "ai_anchor": anchor_is_ai,
+            "supabase_connected": get_supabase() is not None,
+            "openai_configured": bool(os.getenv("OPENAI_API_KEY")),
+        },
     }
 
     return func.HttpResponse(json.dumps(result, ensure_ascii=False), status_code=200, headers=headers)
+
+
+# ── Service Status ────────────────────────────────────────────────────────────
+@app.route(route="service-status", methods=["GET", "OPTIONS"])
+def service_status(req: func.HttpRequest) -> func.HttpResponse:
+    """Returns status of all Azure and external services. Used by dev banner."""
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
+    }
+    if req.method == "OPTIONS":
+        return func.HttpResponse(status_code=200, headers=headers)
+
+    sb_connected = get_supabase() is not None
+    openai_key = bool(os.getenv("OPENAI_API_KEY"))
+    azure_ml = bool(os.getenv("AZURE_ML_ENDPOINT"))
+    speech_key = bool(os.getenv("AZURE_SPEECH_KEY"))
+    app_insights = bool(os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING"))
+
+    fallback_data = []
+    if not sb_connected:
+        fallback_data.extend(["prices", "buyers"])
+    if not openai_key:
+        fallback_data.append("ai_anchor")
+
+    connected_count = sum([sb_connected, openai_key, True])  # open_meteo always works
+    total_required = 3  # supabase, openai, open_meteo
+
+    if connected_count == total_required and not fallback_data:
+        data_mode = "full"
+    elif fallback_data:
+        data_mode = "fallback" if not sb_connected else "partial"
+    else:
+        data_mode = "partial"
+
+    payload = {
+        "services": {
+            "supabase": {
+                "connected": sb_connected,
+                "note": "9 tables, RLS enabled" if sb_connected else "Set SUPABASE_URL + SUPABASE_SERVICE_KEY",
+            },
+            "openai": {
+                "connected": openai_key,
+                "note": "GPT-4o-mini negotiation anchor" if openai_key else "Set OPENAI_API_KEY — see AZURE-IMPLEMENTATION.md",
+            },
+            "open_meteo": {
+                "connected": True,
+                "note": "Free API — no key needed",
+            },
+            "azure_ml": {
+                "connected": azure_ml,
+                "planned": not azure_ml,
+                "note": "Prophet forecasting — Phase 4" if not azure_ml else "Connected",
+            },
+            "azure_speech": {
+                "connected": speech_key,
+                "planned": not speech_key,
+                "note": "Voice input — Phase 10" if not speech_key else "Connected",
+            },
+            "app_insights": {
+                "connected": app_insights,
+                "note": "Monitoring optional" if not app_insights else "Connected",
+            },
+        },
+        "data_mode": data_mode,
+        "fallback_data": fallback_data,
+    }
+
+    return func.HttpResponse(json.dumps(payload), status_code=200, headers=headers)
 
 
 # ── Weather Collection ────────────────────────────────────────────────────────
