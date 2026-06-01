@@ -866,16 +866,7 @@
       <div>
         <div class="brand-name">PasokanAI</div>
       </div>
-      <span class="azure-tag" title="Berjalan di atas Microsoft Azure">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M13.05 4.24L6.56 18.05H2.69L13.05 4.24Z" fill="#0089D6"/>
-          <path d="M14.5 5.36L9.34 18.05L17.21 19.76L21.31 18.05L14.5 5.36Z" fill="#0089D6"/>
-          <path d="M14.5 5.36L9.34 18.05L8.13 21.36L21.31 18.05L14.5 5.36Z" fill="#0078D4" opacity="0.7"/>
-        </svg>
-        Azure
-      </span>
-      <span class="brand-tag">Beta</span>
-    </div>
+      
     <!-- CTA besar dengan bahasa hangat -->
     <button class="nav-cta" onclick="scrollToApp()">Mulai Tanya 🌱</button>
   </div>
@@ -921,19 +912,19 @@
     <div class="section-head">
       <span class="kicker">Caranya Mudah</span>
       <h2>Tinggal cerita, kami yang hitungkan</h2>
-      <p>Tidak perlu pintar komputer. Cukup jawab 3 pertanyaan singkat tentang lahan Bapak/Ibu.</p>
+      <p>Tidak perlu pintar komputer. Cukup jawab 3 pertanyaan singkat tentang lahan Anda.</p>
     </div>
     <!-- Setiap kartu pakai bahasa cerita, bukan jargon teknis -->
     <div class="steps">
       <div class="step-card">
         <div class="step-num">1</div>
-        <h3>📍 Cerita lahan Bapak/Ibu</h3>
+        <h3>📍 Cerita lahan Anda</h3>
         <p>Pilih kabupaten dan berapa luas lahannya. Tidak perlu tepat — perkiraan saja sudah cukup.</p>
       </div>
       <div class="step-card">
         <div class="step-num">2</div>
         <h3>⏳ Kami yang hitungkan</h3>
-        <p>Kami cek cuaca, harga pasar, dan kondisi panen 3 tahun terakhir di daerah Bapak/Ibu.</p>
+        <p>Kami cek cuaca, harga pasar, dan kondisi panen 3 tahun terakhir di daerah Anda.</p>
       </div>
       <div class="step-card">
         <div class="step-num">3</div>
@@ -961,13 +952,13 @@
         <div class="progress-step"></div>
       </div>
       <div class="progress-label">Pertanyaan 1 dari 3</div>
-      <!-- Bahasa percakapan: kami sedang ngobrol dengan Bapak/Ibu -->
-      <h2 class="step-title">Boleh tahu lahan Bapak/Ibu di mana?</h2>
+      <!-- Bahasa percakapan: kami sedang ngobrol dengan Anda -->
+      <h2 class="step-title">Boleh tahu lahan Anda di mana?</h2>
       <p style="margin-bottom: 24px; color: var(--ink-soft); font-size: 0.95rem;">
-        Cerita sebentar ya, supaya kami bisa memberikan saran yang pas untuk daerah Bapak/Ibu. 🌾
+        Cerita sebentar ya, supaya kami bisa memberikan saran yang pas untuk daerah Anda. 🌾
       </p>
 
-      <!-- Kartu input suara — Bapak/Ibu bisa cerita lewat suara, atau isi manual di bawah -->
+      <!-- Kartu input suara — Anda bisa cerita lewat suara, atau isi manual di bawah -->
       <button type="button" class="voice-card" disabled aria-label="Fitur suara segera hadir">
         <div class="voice-mic" aria-hidden="true">
           <!-- SVG ikon mikrofon, inline supaya tidak butuh dependency -->
@@ -988,7 +979,7 @@
       <div class="or-divider">atau isi langsung</div>
 
       <div class="form-group">
-        <label class="form-label" for="kabupaten">📍 Lahan Bapak/Ibu di kabupaten mana?</label>
+        <label class="form-label" for="kabupaten">📍 Lahan Anda di kabupaten mana?</label>
         <select id="kabupaten" class="form-select">
           <option value="">— Klik di sini, lalu pilih kabupaten —</option>
           <optgroup label="Yogyakarta">
@@ -1015,11 +1006,11 @@
             <option value="lombok">Lombok Tengah, NTB</option>
           </optgroup>
         </select>
-        <div class="form-hint">Pilih yang paling dekat dengan lahan Bapak/Ibu. Tidak harus tepat 100%.</div>
+        <div class="form-hint">Pilih yang paling dekat dengan lahan Anda. Tidak harus tepat 100%.</div>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="luas">🌾 Berapa luas lahan Bapak/Ibu?</label>
+        <label class="form-label" for="luas">🌾 Berapa luas lahan Anda?</label>
         <div class="input-row">
           <input id="luas" type="number" min="0.1" step="0.1" placeholder="Contoh: tulis 1 untuk 1 hektare" class="form-input" />
           <span class="input-suffix">Hektare</span>
@@ -1046,14 +1037,14 @@
         <div class="progress-step"></div>
       </div>
       <div class="progress-label">Pertanyaan 2 dari 3</div>
-      <!-- Pertanyaan personal: apa yang lebih penting buat Bapak/Ibu -->
-      <h2 class="step-title">Apa yang lebih penting bagi Bapak/Ibu?</h2>
+      <!-- Pertanyaan personal: apa yang lebih penting buat Anda -->
+      <h2 class="step-title">Apa yang lebih penting bagi Anda?</h2>
       <p style="margin-bottom: 24px; color: var(--ink-soft); font-size: 0.95rem;">
-        Tidak ada jawaban yang salah — kami hanya ingin tahu prioritas Bapak/Ibu supaya saran kami lebih pas. 🙏
+        Tidak ada jawaban yang salah — kami hanya ingin tahu prioritas Anda supaya saran kami lebih pas. 🙏
       </p>
 
       <div class="form-group">
-        <label class="form-label">💰 Modal yang sudah Bapak/Ibu siapkan</label>
+        <label class="form-label">💰 Modal yang sudah Anda siapkan</label>
         <div class="input-row">
           <span class="input-suffix">Rp</span>
           <input id="modal" type="number" min="0" placeholder="Contoh: 5000000 untuk 5 juta" class="form-input" />
@@ -1065,7 +1056,7 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">🎯 Mana yang Bapak/Ibu cari?</label>
+        <label class="form-label">🎯 Mana yang Anda cari?</label>
         <div class="priority-grid">
           <button class="priority-card" data-priority="profit" onclick="selectPriority('profit')">
             <div class="priority-icon">📈</div>
@@ -1096,11 +1087,11 @@
       <div class="progress-label">Sebentar lagi selesai</div>
       <h2 class="step-title">Sudah lengkap! Kami siap bantu</h2>
       <p style="margin-bottom: 20px; color: var(--ink-soft);">
-        Cek dulu ya, apakah sudah benar. Kalau sudah, klik tombol di bawah — kami yang hitungkan untuk Bapak/Ibu. ✨
+        Cek dulu ya, apakah sudah benar. Kalau sudah, klik tombol di bawah — kami yang hitungkan untuk Anda. ✨
       </p>
 
       <div class="kur-card" style="margin-bottom: 20px;">
-        <div style="font-weight:600; margin-bottom:12px;">📋 Yang sudah Bapak/Ibu ceritakan:</div>
+        <div style="font-weight:600; margin-bottom:12px;">📋 Yang sudah Anda ceritakan:</div>
         <div id="summary-content" style="font-size:0.95rem; color: var(--ink-soft); line-height: 1.9;"></div>
       </div>
 
@@ -1112,7 +1103,7 @@
 
     <!-- LOADING -->
     <div id="loading-screen" class="step-screen hidden">
-      <h2 class="step-title" style="text-align:center;">🌿 Sebentar ya, Bapak/Ibu</h2>
+      <h2 class="step-title" style="text-align:center;">🌿 Sebentar ya..</h2>
       <p style="text-align:center; margin-bottom: 24px; color: var(--ink-soft);">
         Kami sedang membantu menghitung. Mohon tunggu sebentar... ☕
       </p>
@@ -1121,7 +1112,7 @@
         <div class="loading-stage" data-stage="0">
           <div class="loading-icon"><span>1</span></div>
           <div>
-            <div class="loading-text-main">Mengecek cuaca di daerah Bapak/Ibu</div>
+            <div class="loading-text-main">Mengecek cuaca di daerah Anda</div>
             <div class="loading-text-sub">📡 Dari kantor BMKG (cuaca resmi)</div>
           </div>
         </div>
@@ -1142,7 +1133,7 @@
         <div class="loading-stage" data-stage="3">
           <div class="loading-icon"><span>4</span></div>
           <div>
-            <div class="loading-text-main">Menyusun saran terbaik untuk Bapak/Ibu</div>
+            <div class="loading-text-main">Menyusun saran terbaik untuk Anda</div>
             <div class="loading-text-sub">🤖 Berdasarkan pengalaman 3 tahun terakhir</div>
           </div>
         </div>
@@ -1152,7 +1143,7 @@
     <!-- RESULT -->
     <div id="result-screen" class="step-screen hidden">
       <div class="progress-label" style="color: var(--green-700);">Hasil sudah siap</div>
-      <h2 class="step-title">Ini saran kami untuk Bapak/Ibu</h2>
+      <h2 class="step-title">Ini saran kami untuk Anda</h2>
 
       <!-- Hero card -->
       <div class="result-hero">
@@ -1170,7 +1161,7 @@
         <div class="result-confidence">
           🎯 Seberapa yakin kami: <strong id="r-confidence">78%</strong>
           <div style="font-size:0.78rem; opacity:0.85; margin-top:4px;">
-            Berdasarkan cuaca dan harga di daerah Bapak/Ibu. Tetap, tidak ada yang bisa menjamin 100% — alam kadang punya kejutan. 🙏
+            Berdasarkan cuaca dan harga di daerah Anda. Tetap, tidak ada yang bisa menjamin 100% — alam kadang punya kejutan. 🙏
           </div>
         </div>
       </div>
@@ -1211,7 +1202,7 @@
       <!-- Scenarios -->
       <h3 class="subsection-title">🔮 Bagaimana kalau...</h3>
       <p style="font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 16px;">
-        Hasil panen tergantung cuaca dan pasar. Kami tunjukkan 3 kemungkinan, supaya Bapak/Ibu siap apapun yang terjadi.
+        Hasil panen tergantung cuaca dan pasar. Kami tunjukkan 3 kemungkinan, supaya Anda siap apapun yang terjadi.
       </p>
       <div class="scenario-tabs">
         <button class="scenario-tab active" data-scenario="optimis" onclick="switchScenario('optimis')">😊 Lancar</button>
@@ -1269,7 +1260,7 @@
           </div>
           <div>
             <div class="kur-status">Layak diajukan</div>
-            <div class="kur-desc">Lihat dari hasil panen, lokasi lahan, dan riwayat tanam Bapak/Ibu — kemungkinan besar bisa lolos pengajuan KUR.</div>
+            <div class="kur-desc">Lihat dari hasil panen, lokasi lahan, dan riwayat tanam Anda — kemungkinan besar bisa lolos pengajuan KUR.</div>
           </div>
         </div>
         <div class="kur-checks">
@@ -1277,7 +1268,7 @@
             <div class="kur-check-icon">🌾</div>
             <div class="kur-check-body">
               <div class="kur-check-title">Hasil panen perkiraannya bagus</div>
-              <div class="kur-check-desc">Bapak/Ibu dinilai mampu bayar cicilannya nanti</div>
+              <div class="kur-check-desc">Anda dinilai mampu bayar cicilannya nanti</div>
             </div>
             <div class="kur-check-status ok">✓ Aman</div>
           </div>
@@ -1301,14 +1292,14 @@
       </div>
 
       <!-- ════ MARKET FAIRNESS LAYER ════ -->
-      <!-- Beri kesan: kami melindungi Bapak/Ibu, bukan menampilkan algoritma -->
+      <!-- Beri kesan: kami melindungi Anda, bukan menampilkan algoritma -->
       <div class="mfl-section">
-        <div class="mfl-badge">🛡️ Lindungi Hasil Panen Bapak/Ibu</div>
+        <div class="mfl-badge">🛡️ Lindungi Hasil Panen Anda</div>
         <h2 class="mfl-title">Sebentar, sebelum jual ke tengkulak...</h2>
         <p class="mfl-intro">
           Sudah panen? <strong>Jangan buru-buru terima harga pertama.</strong>
           Coba masukkan harga yang ditawarkan, kami cek dulu apakah harganya wajar atau terlalu murah.
-          Supaya Bapak/Ibu tidak rugi. 🙏
+          Supaya Anda tidak rugi. 🙏
         </p>
 
         <div class="mfl-input-card">
@@ -1326,8 +1317,8 @@
         <!-- Gap Result Container (dynamic) -->
         <div id="gap-result-fair" class="gap-result">
           <div class="gap-fair">
-            <div class="gap-fair-head">✅ Harga ini wajar, Bapak/Ibu</div>
-            <p>Tawaran tengkulak ini masih dalam batas normal di daerah Bapak/Ibu. Kalau memang butuh uang segera, harga ini boleh diterima — tidak akan rugi banyak. 👍</p>
+            <div class="gap-fair-head">✅ Harga ini wajar!</div>
+            <p>Tawaran tengkulak ini masih dalam batas normal di daerah Anda. Kalau memang butuh uang segera, harga ini boleh diterima — tidak akan rugi banyak. 👍</p>
           </div>
         </div>
 
@@ -1336,7 +1327,7 @@
             <div class="gap-alert-banner">⚠️ Hati-hati, harga ini terlalu murah!</div>
             <div class="gap-alert-body">
               <div class="gap-alert-headline" id="gap-headline">Selisih Rp 800/kg</div>
-              <div class="gap-alert-sub" id="gap-sub">Untuk panen 1 hektare (~4,5 ton), Bapak/Ibu bisa kehilangan <strong>Rp 3,6 juta</strong> kalau menerima tawaran ini. Jangan diterima dulu ya. 🙏</div>
+              <div class="gap-alert-sub" id="gap-sub">Untuk panen 1 hektare (~4,5 ton), Anda bisa kehilangan <strong>Rp 3,6 juta</strong> kalau menerima tawaran ini. Jangan diterima dulu ya. 🙏</div>
 
               <!-- Perbandingan tiga harga, dengan label yang lebih ramah -->
               <div class="gap-comparison">
@@ -1362,10 +1353,10 @@
 
               <div class="anchor-card">
                 <div class="anchor-head">
-                  📋 Kalimat untuk Bapak/Ibu sampaikan ke tengkulak
+                  📋 Kalimat untuk Anda sampaikan ke tengkulak
                   <span class="anchor-tag">Salin & Pakai</span>
                 </div>
-                <p>Kalau memang harus jual ke tengkulak ini juga, coba sampaikan kalimat berikut. Tunjukkan bahwa Bapak/Ibu tahu harga sebenarnya:</p>
+                <p>Kalau memang harus jual ke tengkulak ini juga, coba sampaikan kalimat berikut. Tunjukkan bahwa Anda tahu harga sebenarnya:</p>
                 <div class="anchor-quote" id="anchor-quote">
                   "Pak/Bu, harga rata-rata yang diterima petani di area kita minggu ini Rp 4.600/kg, bahkan harga pasarnya Rp 5.200/kg. Tawaran Rp 3.800 selisihnya cukup jauh. Apakah masih bisa kita bicarakan?"
                 </div>
@@ -1419,14 +1410,14 @@
     <div class="section-head">
       <span class="kicker">Yang Membantu Kami</span>
       <h2>Datanya dari sumber resmi</h2>
-      <p>Bapak/Ibu tidak perlu khawatir — semua angka yang kami pakai datang dari kantor pemerintah, bukan tebak-tebakan.</p>
+      <p>Anda tidak perlu khawatir — semua angka yang kami pakai datang dari kantor pemerintah, bukan tebak-tebakan.</p>
     </div>
     <!-- Tech section: ganti nama produk Azure menjadi fungsi yang petani pahami -->
     <div class="tech-grid">
       <div class="tech-card">
         <div class="tech-card-icon">🌧️</div>
         <div class="tech-card-title">Data Cuaca dari BMKG</div>
-        <div class="tech-card-desc">Setiap hari kami mengecek prakiraan hujan dan suhu di daerah Bapak/Ibu, langsung dari kantor cuaca resmi.</div>
+        <div class="tech-card-desc">Setiap hari kami mengecek prakiraan hujan dan suhu di daerah Anda, langsung dari kantor cuaca resmi.</div>
       </div>
       <div class="tech-card">
         <div class="tech-card-icon">📊</div>
@@ -1446,7 +1437,7 @@
       <div class="tech-card">
         <div class="tech-card-icon">🛡️</div>
         <div class="tech-card-title">Lindungi Harga Petani</div>
-        <div class="tech-card-desc">Kami bantu Bapak/Ibu tahu harga sebenarnya, supaya tidak ditekan tengkulak. Ini yang kami sebut "Perlindungan Harga".</div>
+        <div class="tech-card-desc">Kami bantu Anda tahu harga sebenarnya, supaya tidak ditekan tengkulak. Ini yang kami sebut "Perlindungan Harga".</div>
       </div>
       <div class="tech-card">
         <div class="tech-card-icon">🤝</div>
@@ -1460,7 +1451,7 @@
 <!-- ───────────── FOOTER ───────────── -->
 <footer>
   <div class="footer-disclaimer">
-    🙏 Saran ini hanya perkiraan dari data yang ada. Sebelum mulai tanam, sebaiknya Bapak/Ibu juga ngobrol dulu dengan penyuluh pertanian setempat ya.
+    🙏 Saran ini hanya perkiraan dari data yang ada. Sebelum mulai tanam, sebaiknya Anda juga ngobrol dulu dengan penyuluh pertanian setempat ya.
   </div>
   <div class="footer-meta">
     <strong>PasokanAI</strong> — Asisten Tani untuk Petani Indonesia ·
@@ -1515,7 +1506,7 @@
         time: 'Mei–Juni 2026', timeSub: 'Musim tanam kedua',
         price: 'Rp 6.800/kg GKP', priceSub: '↑ 5% dari bulan lalu',
         yield: '5–6 ton', harvest: '110–120 hari',
-        reasoning: 'Bantul itu salah satu lumbung padi Yogyakarta, airnya juga selalu ada karena irigasinya bagus. Harga gabah dijamin pemerintah, jadi tidak akan rugi banyak. Cocok kalau Bapak/Ibu ingin hasil yang sudah pasti.',
+        reasoning: 'Bantul itu salah satu lumbung padi Yogyakarta, airnya juga selalu ada karena irigasinya bagus. Harga gabah dijamin pemerintah, jadi tidak akan rugi banyak. Cocok kalau Anda ingin hasil yang sudah pasti.',
         scenarios: { optimis: ['Rp 12–17 juta', 'Rp 7.200–7.800/kg'], normal: ['Rp 7–11 juta', 'Rp 6.500–7.000/kg'], pesimis: ['Rp 3–6 juta', 'Rp 5.800–6.300/kg'] },
         avgPrice: 6500, predictedPrice: 6800 },
     },
@@ -1540,7 +1531,7 @@
         time: 'April–Mei 2026', timeSub: 'Sebelum kemarau penuh',
         price: 'Rp 65.000/kg', priceSub: 'Sudah ada kontrak gudang',
         yield: '1,5–2 ton', harvest: '120–140 hari',
-        reasoning: 'Petani Klaten sudah biasa kerja sama dengan gudang tembakau di Solo. Harga per kilo sangat tinggi, tapi memang harus paham cara menjemurnya. Kalau Bapak/Ibu sudah pengalaman atau punya jaringan ke gudang pembeli, ini pilihan yang menguntungkan.',
+        reasoning: 'Petani Klaten sudah biasa kerja sama dengan gudang tembakau di Solo. Harga per kilo sangat tinggi, tapi memang harus paham cara menjemurnya. Kalau Anda sudah pengalaman atau punya jaringan ke gudang pembeli, ini pilihan yang menguntungkan.',
         scenarios: { optimis: ['Rp 50–75 juta', 'Rp 70.000–80.000/kg'], normal: ['Rp 25–40 juta', 'Rp 60.000–68.000/kg'], pesimis: ['Rp 8–18 juta', 'Rp 45.000–55.000/kg'] },
         avgPrice: 60000, predictedPrice: 65000 },
       safe: { name: 'Padi', emoji: '🌾', confidence: 85, risk: '🟢 Risiko Rendah',
@@ -1611,7 +1602,7 @@
         time: 'April–Juni 2026', timeSub: 'Awal kemarau',
         price: 'Rp 10.500/kg', priceSub: '↑ 7% dari bulan lalu',
         yield: '1,8–2,5 ton', harvest: '85–95 hari',
-        reasoning: 'Kedelai di Jember dapat bantuan dari pemerintah, dan pengrajin tempe-tahu selalu butuh. Risikonya kecil karena harga dijaga, biayanya juga tidak mahal. Cocok kalau Bapak/Ibu mau yang aman saja.',
+        reasoning: 'Kedelai di Jember dapat bantuan dari pemerintah, dan pengrajin tempe-tahu selalu butuh. Risikonya kecil karena harga dijaga, biayanya juga tidak mahal. Cocok kalau Anda mau yang aman saja.',
         scenarios: { optimis: ['Rp 8–14 juta', 'Rp 11.500–13.000/kg'], normal: ['Rp 4–7 juta', 'Rp 10.000–11.000/kg'], pesimis: ['Rp 1–3 juta', 'Rp 8.000–9.500/kg'] },
         avgPrice: 9800, predictedPrice: 10500 },
     },
@@ -1627,7 +1618,7 @@
         time: 'Pemeliharaan rutin', timeSub: 'Panen utama Juli–September',
         price: 'Rp 9.000/kg', priceSub: 'Stabil',
         yield: '20–30 ton', harvest: 'Tahunan',
-        reasoning: 'Jeruk siam Banyuwangi terkenal di pasar tradisional, sudah ada banyak penampung. Kalau Bapak/Ibu punya lahan tetap, ini pilihan yang bagus untuk pendapatan tahunan. Harganya jarang anjlok.',
+        reasoning: 'Jeruk siam Banyuwangi terkenal di pasar tradisional, sudah ada banyak penampung. Kalau Anda punya lahan tetap, ini pilihan yang bagus untuk pendapatan tahunan. Harganya jarang anjlok.',
         scenarios: { optimis: ['Rp 180–270 juta', 'Rp 10.500–12.000/kg'], normal: ['Rp 90–150 juta', 'Rp 8.500–9.500/kg'], pesimis: ['Rp 30–70 juta', 'Rp 6.500–8.000/kg'] },
         avgPrice: 8200, predictedPrice: 9000 },
     },
@@ -1643,7 +1634,7 @@
         time: 'April–Mei 2026', timeSub: 'Awal kemarau',
         price: 'Rp 4.500/kg', priceSub: 'Harga stabil',
         yield: '15–20 ton', harvest: '110–130 hari',
-        reasoning: 'Ubi jalar Bogor (apalagi Cilembu) sudah punya nama, pembeli pasti banyak. Risikonya rendah, modal juga tidak mahal. Cocok untuk Bapak/Ibu yang baru mulai dan ingin pendapatan stabil.',
+        reasoning: 'Ubi jalar Bogor (apalagi Cilembu) sudah punya nama, pembeli pasti banyak. Risikonya rendah, modal juga tidak mahal. Cocok untuk Anda yang baru mulai dan ingin pendapatan stabil.',
         scenarios: { optimis: ['Rp 16–24 juta', 'Rp 5.200–6.000/kg'], normal: ['Rp 8–13 juta', 'Rp 4.200–4.800/kg'], pesimis: ['Rp 3–6 juta', 'Rp 3.200–4.000/kg'] },
         avgPrice: 4200, predictedPrice: 4500 },
     },
@@ -1675,7 +1666,7 @@
         time: 'April–Juli 2026', timeSub: 'Iklim sejuk',
         price: 'Rp 4.200/kg', priceSub: 'Stabil',
         yield: '25–35 ton', harvest: '90–100 hari',
-        reasoning: 'Garut salah satu penghasil kubis Jawa Barat. Pasar tradisional dan rumah makan selalu butuh, jadi tidak akan tersisa. Modalnya hemat, cocok untuk lahan luas dan Bapak/Ibu yang ingin aman.',
+        reasoning: 'Garut salah satu penghasil kubis Jawa Barat. Pasar tradisional dan rumah makan selalu butuh, jadi tidak akan tersisa. Modalnya hemat, cocok untuk lahan luas dan Anda yang ingin aman.',
         scenarios: { optimis: ['Rp 25–40 juta', 'Rp 4.800–5.500/kg'], normal: ['Rp 12–22 juta', 'Rp 3.900–4.500/kg'], pesimis: ['Rp 4–9 juta', 'Rp 2.800–3.700/kg'] },
         avgPrice: 3900, predictedPrice: 4200 },
     },
@@ -1775,14 +1766,14 @@
     if (n === 2) {
       const kab = document.getElementById('kabupaten').value;
       const luas = parseFloat(document.getElementById('luas').value);
-      if (!kab) { alert('Pilih kabupaten Bapak/Ibu dulu ya 😊'); return; }
+      if (!kab) { alert('Pilih kabupaten Anda dulu ya 😊'); return; }
       if (!luas || luas <= 0) { alert('Tolong isi luas lahannya dulu. Tidak perlu tepat — perkiraan saja sudah cukup. 🙏'); return; }
       state.kabupaten = kab;
       state.kabupatenLabel = document.getElementById('kabupaten').selectedOptions[0].text;
       state.luas = luas;
     }
     if (n === 3) {
-      if (!state.priority) { alert('Pilih dulu yang Bapak/Ibu cari: hasil besar atau yang aman saja? 🙏'); return; }
+      if (!state.priority) { alert('Pilih dulu yang Anda cari: hasil besar atau yang aman saja? 🙏'); return; }
       state.modal = parseFloat(document.getElementById('modal').value) || 0;
       renderSummary();
     }
@@ -1801,7 +1792,7 @@
   function renderSummary() {
     const fmtRp = n => 'Rp ' + n.toLocaleString('id-ID');
     let html = `
-      <div>📍 <strong>Lahan Bapak/Ibu di:</strong> ${state.kabupatenLabel}</div>
+      <div>📍 <strong>Lahan Anda di:</strong> ${state.kabupatenLabel}</div>
       <div>🌾 <strong>Luas lahan:</strong> ${state.luas} hektare</div>
       <div>💰 <strong>Modal yang disiapkan:</strong> ${state.modal > 0 ? fmtRp(state.modal) : '<em>belum diisi (tidak apa-apa)</em>'}</div>
       <div>🎯 <strong>Yang dicari:</strong> ${state.priority === 'profit' ? 'Hasil yang besar' : 'Yang aman saja'}</div>
@@ -1993,7 +1984,7 @@
     document.getElementById('gap-headline').textContent = `Harga sangat tidak biasa`;
     document.getElementById('gap-sub').innerHTML =
       `Tawaran Rp ${Math.round(harga).toLocaleString('id-ID')}/kg jauh di atas rata-rata ` +
-      `(Rp ${refPrice.toLocaleString('id-ID')}/kg). Pastikan angkanya sudah benar, Bapak/Ibu.`;
+      `(Rp ${refPrice.toLocaleString('id-ID')}/kg). Pastikan angkanya sudah benar, Anda.`;
     document.getElementById('anchor-quote').textContent =
       `Cek kembali angka yang dimasukkan — harga segini sangat tidak umum untuk ${state.recommendation.name} di daerah ini.`;
 
