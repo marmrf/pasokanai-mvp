@@ -25,7 +25,7 @@ export interface RecommendationData {
   avgPrice: number
   predictedPrice: number
   confidence?: number
-  /** Data source: 'azure_openai' | 'statistical_fallback' | 'seed' */
+  /** Data source: 'azure_openai' | 'gemini' | 'statistical_fallback' | 'seed' */
   _source?: string
   /** Commodity slug used for buyer lookup */
   _commodity?: string

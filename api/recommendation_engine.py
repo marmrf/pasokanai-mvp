@@ -9,6 +9,8 @@ See: AZURE-IMPLEMENTATION.md § Phase 4
 import json
 import logging
 import os
+import urllib.request
+import urllib.error
 from datetime import date
 
 logger = logging.getLogger(__name__)
@@ -33,6 +35,55 @@ MONTH_NAMES = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov"
 SYSTEM_PROMPT = """Kamu adalah konsultan pertanian AI untuk petani kecil di Daerah Istimewa Yogyakarta.
 Kamu berbicara dalam Bahasa Indonesia yang sederhana, hangat, dan mudah dipahami petani.
 Selalu gunakan data konkret yang diberikan. Jawab dalam format JSON yang diminta TANPA teks tambahan."""
+
+
+def _clean_json_text(text: str) -> str:
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.strip("`")
+        if cleaned.lower().startswith("json"):
+            cleaned = cleaned[4:].strip()
+    return cleaned
+
+
+def _generate_with_gemini(prompt: str) -> dict | None:
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return None
+
+    model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    payload = {
+        "contents": [
+            {"role": "user", "parts": [{"text": prompt}]}
+        ],
+        "generationConfig": {
+            "temperature": 0.35,
+            "maxOutputTokens": 700,
+        },
+    }
+
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=25) as resp:
+            data = json.load(resp)
+        candidates = data.get("candidates") or []
+        if not candidates:
+            return None
+        parts = candidates[0].get("content", {}).get("parts") or []
+        text = "".join(p.get("text", "") for p in parts)
+        if not text:
+            return None
+        return json.loads(_clean_json_text(text))
+    except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
+        logger.error(f"Gemini recommendation error: {e}")
+        return None
 
 
 # ── Forecasting ───────────────────────────────────────────────────────────────
@@ -261,7 +312,17 @@ def generate_recommendation(district_id: str, priority: str, supabase_client, op
             return rec, "azure_openai"
         except Exception as e:
             logger.error(f"OpenAI recommendation error: {e}")
-            # Fall through to statistical fallback
+            # Fall through to Gemini fallback
+
+    # 7b. Gemini fallback
+    prompt = build_prompt(best_commodity, district_name, best_forecast, weather, priority, forecasts)
+    rec = _generate_with_gemini(prompt)
+    if rec:
+        rec["_source"]     = "gemini"
+        rec["_commodity"]  = best_commodity
+        rec["_confidence"] = min(90, max(55, 62 + best_forecast["data_points"] * 3))
+        _save_recommendation(supabase_client, district_id, best_commodity, priority, rec)
+        return rec, "gemini"
 
     # 8. Statistical fallback (no OpenAI)
     rec = _build_fallback_rec(best_commodity, district_name, best_forecast, weather, forecasts)

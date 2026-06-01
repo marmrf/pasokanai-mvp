@@ -3,6 +3,8 @@ import json
 import os
 import math
 import logging
+import urllib.request
+import urllib.error
 
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from openai import OpenAI, AzureOpenAI
@@ -42,6 +44,40 @@ def create_openai_client():
 
 
 openai_client, MODEL, OPENAI_CONFIGURED = create_openai_client()
+
+
+def generate_with_gemini(prompt: str) -> str | None:
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return None
+
+    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    payload = {
+        "contents": [
+            {"role": "user", "parts": [{"text": prompt}]}
+        ]
+    }
+
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            data = json.load(resp)
+        candidates = data.get("candidates") or []
+        if not candidates:
+            return None
+        parts = candidates[0].get("content", {}).get("parts") or []
+        text = "".join(p.get("text", "") for p in parts).strip()
+        return text or None
+    except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
+        logger.error(f"Gemini error: {e}")
+        return None
 
 # Lazy-loaded Supabase client
 _supabase = None
@@ -211,13 +247,6 @@ def cari_offtaker_fallback(kabupaten, komoditas, max_hasil=3):
 def buat_anchor(komoditas, kabupaten, harga_tawaran, harga_avg, harga_ref, selisih, luas_ha, total_loss):
     """Returns (anchor_text, is_ai_generated)."""
     lokasi_label = kabupaten.replace("_", " ").title()
-    if not openai_client:
-        fallback = (
-            f"Pak/Bu, harga rata-rata {komoditas.replace('_',' ')} di {lokasi_label} "
-            f"minggu ini Rp {harga_avg:,}/kg. Tawaran Rp {harga_tawaran:,}/kg selisihnya "
-            f"Rp {selisih:,}/kg. Apakah bisa kita bicarakan lagi?"
-        )
-        return fallback, False
     prompt = f"""Kamu adalah asisten PasokanAI yang membantu petani Indonesia bernegosiasi harga dengan tengkulak.
 
 Situasi:
@@ -231,22 +260,28 @@ Situasi:
 
 Tulis SATU kalimat negosiasi anchor dalam Bahasa Indonesia yang sederhana, sopan, dan bisa langsung diucapkan petani ke tengkulak. Maksimal 2 kalimat. Gunakan data di atas sebagai argumen. Jangan gunakan kata teknis."""
 
-    try:
-        response = openai_client.chat.completions.create(
-            model=MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=150,
-            temperature=0.7
-        )
-        return response.choices[0].message.content.strip(), True
-    except Exception as e:
-        logger.error(f"OpenAI error: {e}")
-        fallback = (
-            f"Pak/Bu, harga rata-rata {komoditas.replace('_',' ')} di {lokasi_label} "
-            f"minggu ini Rp {harga_avg:,}/kg. Tawaran Rp {harga_tawaran:,}/kg selisihnya "
-            f"Rp {selisih:,}/kg. Apakah bisa kita bicarakan lagi?"
-        )
-        return fallback, False
+    if openai_client:
+        try:
+            response = openai_client.chat.completions.create(
+                model=MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=150,
+                temperature=0.7
+            )
+            return response.choices[0].message.content.strip(), True
+        except Exception as e:
+            logger.error(f"OpenAI error: {e}")
+
+    gemini_text = generate_with_gemini(prompt)
+    if gemini_text:
+        return gemini_text, True
+
+    fallback = (
+        f"Pak/Bu, harga rata-rata {komoditas.replace('_',' ')} di {lokasi_label} "
+        f"minggu ini Rp {harga_avg:,}/kg. Tawaran Rp {harga_tawaran:,}/kg selisihnya "
+        f"Rp {selisih:,}/kg. Apakah bisa kita bicarakan lagi?"
+    )
+    return fallback, False
 
 
 @app.route(route="gap-check", methods=["POST"])

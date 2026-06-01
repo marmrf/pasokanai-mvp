@@ -116,11 +116,17 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
       label: 'Dihasilkan AI — Azure OpenAI (GPT-4o-mini)',
       sub: 'Data harga dari DPKP DIY & Bapanas · Prediksi statistik dari data historis',
     },
+    gemini: {
+      bg: '#eef2ff', border: '#c7d2fe', color: '#3730a3',
+      icon: '✨',
+      label: 'Dihasilkan AI — Gemini',
+      sub: 'Data harga dari DPKP DIY & Bapanas · Prediksi statistik dari data historis',
+    },
     statistical_fallback: {
       bg: '#fffbeb', border: '#fcd34d', color: '#92400e',
       icon: '📊',
-      label: 'Prediksi Statistik — Azure OpenAI offline',
-      sub: 'Data harga real dari DPKP DIY & Bapanas · Azure OpenAI belum dikonfigurasi (OPENAI_API_KEY)',
+      label: 'Prediksi Statistik — LLM offline',
+      sub: 'Data harga real dari DPKP DIY & Bapanas · Azure OpenAI/Gemini belum tersedia',
     },
     seed: {
       bg: '#fef2f2', border: '#fca5a5', color: '#991b1b',
