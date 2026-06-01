@@ -3,4 +3,3 @@ openai==2.38.0
 python-dotenv
 opencensus-ext-azure
 supabase==2.15.0
-playwright==1.49.0
