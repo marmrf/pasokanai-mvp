@@ -759,6 +759,50 @@ section { padding: 60px 24px; }
 .next-step-title { font-weight: 600; color: var(--ink); font-size: 0.92rem; }
 .next-step-desc { font-size: 0.78rem; color: var(--ink-mute); margin-top: 2px; }
 
+/* ── KUR MODAL ───────────────────────── */
+.kur-modal {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(17, 24, 39, 0.45);
+  display: grid; place-items: center;
+  padding: 20px;
+}
+.kur-modal-card {
+  background: var(--paper);
+  border-radius: var(--radius);
+  max-width: 520px; width: 100%;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--line-soft);
+}
+.kur-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px; border-bottom: 1px solid var(--line-soft);
+}
+.kur-modal-title { font-weight: 700; color: var(--green-900); }
+.kur-modal-close {
+  background: transparent; border: none; cursor: pointer;
+  font-size: 1.1rem; color: var(--ink-mute);
+}
+.kur-modal-body { padding: 16px 18px; color: var(--ink); }
+.kur-modal-body ul { margin: 0 0 12px 18px; }
+.kur-modal-note { font-size: 0.9rem; color: var(--ink-soft); }
+.kur-modal-actions { padding: 0 18px 18px; display: flex; justify-content: flex-end; }
+
+/* ── PRINT ───────────────────────────── */
+.print-only { display: none; }
+.print-header { margin-bottom: 16px; }
+.print-header-title { font-weight: 700; font-size: 1.1rem; color: var(--ink); }
+.print-header-meta { font-size: 0.85rem; color: var(--ink-mute); }
+
+@media print {
+  body { background: white; }
+  .print-hide { display: none !important; }
+  .print-only { display: block !important; }
+  .app { box-shadow: none; border: none; margin: 0; padding: 0; }
+  .result-hero, .scenario-card, .kur-card { break-inside: avoid; }
+  .mfl-section { display: none; }
+  .next-steps-grid { display: none; }
+}
+
 /* ── TECH SECTION ──────────────────────── */
 .tech {
   background: var(--green-900);

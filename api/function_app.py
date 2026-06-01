@@ -386,7 +386,7 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
             "buyers_source": buyers_source,
             "ai_anchor": anchor_is_ai,
             "supabase_connected": get_supabase() is not None,
-            "openai_configured": OPENAI_CONFIGURED,
+            "openai_configured": OPENAI_CONFIGURED or bool(os.getenv("GEMINI_API_KEY")),
         },
     }
 
@@ -452,6 +452,7 @@ def service_status(req: func.HttpRequest) -> func.HttpResponse:
 
     sb_connected = get_supabase() is not None
     openai_key = OPENAI_CONFIGURED
+    gemini_key = bool(os.getenv("GEMINI_API_KEY"))
     azure_ml = bool(os.getenv("AZURE_ML_ENDPOINT"))
     speech_key = bool(os.getenv("AZURE_SPEECH_KEY"))
     app_insights = bool(os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING"))
@@ -459,11 +460,11 @@ def service_status(req: func.HttpRequest) -> func.HttpResponse:
     fallback_data = []
     if not sb_connected:
         fallback_data.extend(["prices", "buyers"])
-    if not openai_key:
+    if not openai_key and not gemini_key:
         fallback_data.append("ai_anchor")
 
-    connected_count = sum([sb_connected, openai_key, True])  # open_meteo always works
-    total_required = 3  # supabase, openai, open_meteo
+    connected_count = sum([sb_connected, (openai_key or gemini_key), True])  # open_meteo always works
+    total_required = 3  # supabase, llm, open_meteo
 
     if connected_count == total_required and not fallback_data:
         data_mode = "full"
@@ -480,7 +481,11 @@ def service_status(req: func.HttpRequest) -> func.HttpResponse:
             },
             "openai": {
                 "connected": openai_key,
-                "note": "GPT-4o-mini negotiation anchor" if openai_key else "Set OPENAI_API_KEY — see AZURE-IMPLEMENTATION.md",
+                "note": "GPT-4o-mini negotiation anchor" if openai_key else "Set AZURE_OPENAI_* or OPENAI_API_KEY",
+            },
+            "gemini": {
+                "connected": gemini_key,
+                "note": "Gemini fallback" if gemini_key else "Set GEMINI_API_KEY",
             },
             "open_meteo": {
                 "connected": True,

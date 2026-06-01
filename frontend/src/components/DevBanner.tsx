@@ -13,6 +13,7 @@ interface ServiceStatusResponse {
     open_meteo: ServiceStatus
     azure_ml: ServiceStatus
     azure_speech: ServiceStatus
+    gemini: ServiceStatus
     app_insights: ServiceStatus
   }
   data_mode: 'full' | 'partial' | 'fallback'
@@ -149,6 +150,7 @@ export default function DevBanner() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
                 <ServiceChip name="Supabase DB" status={status.services.supabase} />
                 <ServiceChip name="Azure OpenAI" status={status.services.openai} />
+                <ServiceChip name="Gemini" status={status.services.gemini} />
                 <ServiceChip name="Open-Meteo" status={status.services.open_meteo} />
                 <ServiceChip name="Azure ML" status={status.services.azure_ml} />
                 <ServiceChip name="Azure Speech" status={status.services.azure_speech} />

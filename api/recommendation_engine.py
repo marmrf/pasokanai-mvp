@@ -43,6 +43,11 @@ def _clean_json_text(text: str) -> str:
         cleaned = cleaned.strip("`")
         if cleaned.lower().startswith("json"):
             cleaned = cleaned[4:].strip()
+    if "{" in cleaned and "}" in cleaned:
+        start = cleaned.find("{")
+        end = cleaned.rfind("}")
+        if end > start:
+            cleaned = cleaned[start:end + 1]
     return cleaned
 
 
@@ -51,7 +56,7 @@ def _generate_with_gemini(prompt: str) -> dict | None:
     if not api_key:
         return None
 
-    model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     payload = {
         "contents": [

@@ -40,6 +40,7 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
   const [gapSub, setGapSub] = useState('')
   const [anchorQuote, setAnchorQuote] = useState('')
   const [gapTengkulakDisplay, setGapTengkulakDisplay] = useState('')
+  const [showKurInfo, setShowKurInfo] = useState(false)
 
   const shortLocation = districtLabel.split(',')[0]
   const confidence = rec.confidence ?? 78
@@ -126,7 +127,7 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
       bg: '#fffbeb', border: '#fcd34d', color: '#92400e',
       icon: '📊',
       label: 'Prediksi Statistik — LLM offline',
-      sub: 'Data harga real dari DPKP DIY & Bapanas · Azure OpenAI/Gemini belum tersedia',
+      sub: 'Data harga real dari DPKP DIY & Bapanas · OpenAI & Gemini tidak merespons',
     },
     seed: {
       bg: '#fef2f2', border: '#fca5a5', color: '#991b1b',
@@ -139,8 +140,12 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
   const srcCfg = dataSource ? SOURCE_CONFIG[dataSource] : SOURCE_CONFIG.seed
 
   return (
-    <div className="step-screen">
-      <div className="progress-label" style={{ color: 'var(--green-700)' }}>Hasil sudah siap</div>
+    <div className="step-screen print-root">
+      <div className="print-only print-header">
+        <div className="print-header-title">PasokanAI — Rekomendasi Tanam</div>
+        <div className="print-header-meta">{districtLabel} · {luas} hektare</div>
+      </div>
+      <div className="progress-label print-hide" style={{ color: 'var(--green-700)' }}>Hasil sudah siap</div>
       <h2 className="step-title">Ini saran kami untuk Anda</h2>
 
       {/* Data source indicator — always visible */}
@@ -176,6 +181,7 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
             Berdasarkan cuaca dan harga di daerah Anda. Tetap, tidak ada yang bisa menjamin 100% — alam kadang punya kejutan. 🙏
           </div>
         </div>
+
       </div>
 
       {/* Tiles */}
@@ -286,7 +292,7 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
       </div>
 
       {/* Market Fairness Layer */}
-      <div className="mfl-section">
+      <div className="mfl-section print-hide">
         <div className="mfl-badge">🛡️ Lindungi Hasil Panen Anda</div>
         <h2 className="mfl-title">Sebentar, sebelum jual ke tengkulak...</h2>
         <p className="mfl-intro">
@@ -383,7 +389,7 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
 
       {/* Next Steps */}
       <h3 className="subsection-title" style={{ marginTop: '40px' }}>📲 Mau diapakan hasil ini?</h3>
-      <div className="next-steps-grid">
+      <div className="next-steps-grid print-hide">
         <button className="next-step" onClick={handleShare}>
           <div className="next-step-icon">💬</div>
           <div className="next-step-body">
@@ -398,10 +404,7 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
             <div className="next-step-desc">Untuk dipasang di rumah</div>
           </div>
         </button>
-        <button
-          className="next-step"
-          onClick={() => alert('Info pinjaman KUR untuk petani:\n\n• Bunga ringan, mulai 6% per tahun\n• Pinjaman sampai Rp 100 juta\n• Untuk pinjaman kecil tidak perlu jaminan\n\nDatang ke kantor BRI, BNI, atau Mandiri terdekat. Bawa KTP, KK, dan surat lahan.')}
-        >
+        <button className="next-step" onClick={() => setShowKurInfo(true)}>
           <div className="next-step-icon">🏦</div>
           <div className="next-step-body">
             <div className="next-step-title">Tanya soal KUR</div>
@@ -416,6 +419,30 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
           </div>
         </button>
       </div>
+
+      {showKurInfo && (
+        <div className="kur-modal print-hide" role="dialog" aria-modal="true">
+          <div className="kur-modal-card">
+            <div className="kur-modal-head">
+              <div className="kur-modal-title">🏦 Info KUR untuk petani</div>
+              <button className="kur-modal-close" onClick={() => setShowKurInfo(false)} aria-label="Tutup">✕</button>
+            </div>
+            <div className="kur-modal-body">
+              <ul>
+                <li>Bunga ringan mulai 6% per tahun</li>
+                <li>Pinjaman sampai Rp 100 juta</li>
+                <li>Tanpa jaminan untuk pinjaman kecil</li>
+              </ul>
+              <div className="kur-modal-note">
+                Datang ke kantor BRI, BNI, atau Mandiri terdekat. Bawa KTP, KK, dan surat lahan.
+              </div>
+            </div>
+            <div className="kur-modal-actions">
+              <button className="btn btn-primary" onClick={() => setShowKurInfo(false)}>Mengerti</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
