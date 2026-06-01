@@ -5,7 +5,7 @@ import math
 import logging
 
 from opencensus.ext.azure.log_exporter import AzureLogHandler
-from openai import OpenAI
+from openai import OpenAI, AzureOpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,8 +19,29 @@ if connection_string:
     logger.addHandler(AzureLogHandler(connection_string=connection_string))
 logger.setLevel(logging.INFO)
 
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+def create_openai_client():
+    azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+    azure_key = os.getenv("AZURE_OPENAI_KEY") or os.getenv("AZURE_OPENAI_API_KEY")
+    azure_deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+    azure_api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-01")
+
+    if azure_endpoint and azure_key:
+        client = AzureOpenAI(
+            azure_endpoint=azure_endpoint,
+            api_key=azure_key,
+            api_version=azure_api_version,
+        )
+        model = azure_deployment or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        return client, model, True
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    if api_key:
+        return OpenAI(api_key=api_key), os.getenv("OPENAI_MODEL", "gpt-4o-mini"), True
+
+    return None, os.getenv("OPENAI_MODEL", "gpt-4o-mini"), False
+
+
+openai_client, MODEL, OPENAI_CONFIGURED = create_openai_client()
 
 # Lazy-loaded Supabase client
 _supabase = None
@@ -190,6 +211,13 @@ def cari_offtaker_fallback(kabupaten, komoditas, max_hasil=3):
 def buat_anchor(komoditas, kabupaten, harga_tawaran, harga_avg, harga_ref, selisih, luas_ha, total_loss):
     """Returns (anchor_text, is_ai_generated)."""
     lokasi_label = kabupaten.replace("_", " ").title()
+    if not openai_client:
+        fallback = (
+            f"Pak/Bu, harga rata-rata {komoditas.replace('_',' ')} di {lokasi_label} "
+            f"minggu ini Rp {harga_avg:,}/kg. Tawaran Rp {harga_tawaran:,}/kg selisihnya "
+            f"Rp {selisih:,}/kg. Apakah bisa kita bicarakan lagi?"
+        )
+        return fallback, False
     prompt = f"""Kamu adalah asisten PasokanAI yang membantu petani Indonesia bernegosiasi harga dengan tengkulak.
 
 Situasi:
@@ -323,7 +351,7 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
             "buyers_source": buyers_source,
             "ai_anchor": anchor_is_ai,
             "supabase_connected": get_supabase() is not None,
-            "openai_configured": bool(os.getenv("OPENAI_API_KEY")),
+            "openai_configured": OPENAI_CONFIGURED,
         },
     }
 
@@ -388,7 +416,7 @@ def service_status(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(status_code=200, headers=headers)
 
     sb_connected = get_supabase() is not None
-    openai_key = bool(os.getenv("OPENAI_API_KEY"))
+    openai_key = OPENAI_CONFIGURED
     azure_ml = bool(os.getenv("AZURE_ML_ENDPOINT"))
     speech_key = bool(os.getenv("AZURE_SPEECH_KEY"))
     app_insights = bool(os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING"))

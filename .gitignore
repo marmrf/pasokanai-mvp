@@ -36,9 +36,14 @@ Thumbs.db
 *.swo
 
 # ── IDE ───────────────────────────────────────────────
+.vscode/
 .vscode/settings.json
 .idea/
 *.iml
+
+# ── Local artifacts ───────────────────────────────────
+az
+screenshot-hero.png
 
 # ── Supabase local dev ─────────────────────────────────
 .branches/
