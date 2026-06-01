@@ -1,13 +1,48 @@
-# Azure Functions
+# ── Azure Functions ──────────────────────────────────
 api/local.settings.json
 api/.env
 api/__pycache__/
+api/.python_packages/
+api/.venv/
 
-# Frontend
+# ── Frontend ──────────────────────────────────────────
 frontend/.env
+frontend/.env.local
 frontend/node_modules/
 frontend/dist/
+frontend/.vite/
 
-# OS
+# ── Playwright MCP (browser automation artifacts) ────
+.playwright-mcp/
+playwright-report/
+test-results/
+
+# ── Claude Code ───────────────────────────────────────
+.claude/
+
+# ── Python ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# ── OS ────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+
+# ── IDE ───────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.iml
+
+# ── Secrets (jangan pernah commit!) ──────────────────
+*.pem
+*.key
+*.p12
+.env
+.env.*
+!.env.example
