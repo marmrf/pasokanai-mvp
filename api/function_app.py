@@ -2,6 +2,9 @@ import azure.functions as func
 import json
 import os
 import math
+import logging
+
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -9,11 +12,18 @@ load_dotenv()
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
+# Setup Application Insights logging
+logger = logging.getLogger(__name__)
+connection_string = os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING")
+if connection_string:
+    logger.addHandler(AzureLogHandler(connection_string=connection_string))
+logger.setLevel(logging.INFO)
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 HARGA_ACUAN = {
-    "sleman":      {"padi": {"avg": 6300, "ref": 6600}, "jagung": {"avg": 4600, "ref": 5200}, "cabai_rawit": {"avg": 45000, "ref": 50000}},
+    "sleman":      {"padi": {"avg": 6300, "ref": 6600}, "jagung": {"avg": 4600, "ref": 5200}, "cabai_rawit": {"avg": 45000, "ref": 50000}, "cabai": {"avg": 35000, "ref": 38000}},
     "bantul":      {"padi": {"avg": 6500, "ref": 6800}, "bawang_merah": {"avg": 25000, "ref": 28000}},
     "gunungkidul": {"kacang_tanah": {"avg": 12500, "ref": 14000}, "singkong": {"avg": 1600, "ref": 1800}},
     "klaten":      {"padi": {"avg": 6600, "ref": 6900}, "tembakau": {"avg": 60000, "ref": 65000}},
@@ -28,11 +38,11 @@ OFFTAKER = [
     {"nama": "KUD Sumber Tani Bantul", "tipe": "koperasi", "komoditas": ["padi","bawang_merah"], "lat": -7.891, "lng": 110.326, "kontak": "Sewon, Bantul"},
     {"nama": "Koperasi Singkong Karangmojo", "tipe": "koperasi", "komoditas": ["singkong","kacang_tanah"], "lat": -7.970, "lng": 110.630, "kontak": "Karangmojo, Gunungkidul"},
     {"nama": "BULOG Sub Divre Yogyakarta", "tipe": "bulog", "komoditas": ["padi","jagung"], "lat": -7.795, "lng": 110.369, "kontak": "Yogyakarta"},
-    {"nama": "TaniHub", "tipe": "ecommerce", "komoditas": ["cabai_rawit","sayuran_daun","bawang_merah","kentang","wortel"], "lat": -6.200, "lng": 106.816, "kontak": "Online, pickup mitra"},
-    {"nama": "Sayurbox", "tipe": "ecommerce", "komoditas": ["cabai_rawit","sayuran_daun","wortel"], "lat": -6.200, "lng": 106.816, "kontak": "Online, kemitraan"},
+    {"nama": "TaniHub", "tipe": "ecommerce", "komoditas": ["cabai_rawit","cabai","sayuran_daun","bawang_merah","kentang","wortel"], "lat": -6.200, "lng": 106.816, "kontak": "Online, pickup mitra"},
+    {"nama": "Sayurbox", "tipe": "ecommerce", "komoditas": ["cabai_rawit","cabai","sayuran_daun","wortel"], "lat": -6.200, "lng": 106.816, "kontak": "Online, kemitraan"},
     {"nama": "BULOG Sub Divre Malang", "tipe": "bulog", "komoditas": ["padi","jagung","kedelai"], "lat": -7.966, "lng": 112.633, "kontak": "Malang"},
     {"nama": "Mitratani Dua Tujuh", "tipe": "offtaker", "komoditas": ["edamame","kedelai"], "lat": -8.170, "lng": 113.700, "kontak": "Jember, kontrak ekspor"},
-    {"nama": "Pasar Induk Beringharjo", "tipe": "pasar_induk", "komoditas": ["sayuran_daun","cabai_rawit","bawang_merah"], "lat": -7.799, "lng": 110.366, "kontak": "Yogyakarta"},
+    {"nama": "Pasar Induk Beringharjo", "tipe": "pasar_induk", "komoditas": ["sayuran_daun","cabai_rawit","cabai","bawang_merah"], "lat": -7.799, "lng": 110.366, "kontak": "Yogyakarta"},
     {"nama": "Koperasi Bawang Brebes", "tipe": "koperasi", "komoditas": ["bawang_merah"], "lat": -6.872, "lng": 109.040, "kontak": "Larangan, Brebes"},
 ]
 
@@ -89,8 +99,9 @@ Tulis SATU kalimat negosiasi anchor dalam Bahasa Indonesia yang sederhana, sopan
             temperature=0.7
         )
         return response.choices[0].message.content.strip()
-    except Exception:
-        return f"Pak/Bu, harga rata-rata petani di {lokasi_label} minggu ini Rp {harga_avg:,}/kg. Tawaran Rp {harga_tawaran:,}/kg selisihnya Rp {selisih:,}/kg, sekitar Rp {total_loss:,.0f} untuk panen Bapak/Ibu. Apakah bisa kita bicarakan lagi?"
+    except Exception as e:
+        logger.error(f"OpenAI error: {e}")
+        return f"Pak/Bu, harga rata-rata petani di {lokasi_label} minggu ini Rp {harga_avg:,}/kg. Tawaran Rp {harga_tawaran:,}/kg selisihnya Rp {selisih:,}/kg. Apakah bisa kita bicarakan lagi?"
 
 @app.route(route="gap-check", methods=["POST"])
 def gap_check(req: func.HttpRequest) -> func.HttpResponse:
@@ -116,6 +127,8 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
     kabupaten = str(body.get("kabupaten", "")).lower().strip()
     harga_tawaran = body.get("harga_tawaran", 0)
     luas_ha = body.get("luas_ha", 1)
+
+    logger.info(f"Gap check request - komoditas: {komoditas}, kabupaten: {kabupaten}, harga: {harga_tawaran}")
 
     if not komoditas or not kabupaten:
         return func.HttpResponse(
@@ -152,9 +165,9 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
 
     YIELD_PER_HA = {
         "padi": 5500, "jagung": 4500, "bawang_merah": 8000,
-        "cabai_rawit": 7000, "kacang_tanah": 2500, "singkong": 17500,
-        "tembakau": 1750, "sayuran_daun": 10000, "kentang": 20000,
-        "wortel": 22500, "edamame": 7000, "kedelai": 2150,
+        "cabai_rawit": 7000, "cabai": 7000, "kacang_tanah": 2500,
+        "singkong": 17500, "tembakau": 1750, "sayuran_daun": 10000,
+        "kentang": 20000, "wortel": 22500, "edamame": 7000, "kedelai": 2150,
     }
     estimasi_yield_kg = YIELD_PER_HA.get(komoditas, 5000) * luas_ha
     total_loss = max(0, selisih * estimasi_yield_kg)
@@ -170,6 +183,8 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
     else:
         anchor = None
         status = "fair"
+
+    logger.info(f"Gap check result - status: {status}, gap_pct: {round(gap_pct, 1)}, selisih: {round(selisih)}")
 
     result = {
         "status": status,
