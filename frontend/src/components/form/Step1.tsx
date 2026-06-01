@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import type { District } from '../../types'
 
 interface Step1Props {
@@ -11,6 +12,69 @@ interface Step1Props {
 }
 
 export default function Step1({ districts, districtId, luas, fetchError, onDistrictChange, onLuasChange, onNext }: Step1Props) {
+  const [speechStatus, setSpeechStatus] = useState<'idle' | 'listening' | 'error'>('idle')
+  const [speechError, setSpeechError] = useState('')
+
+  const speechKey = import.meta.env.VITE_AZURE_SPEECH_KEY as string | undefined
+  const speechRegion = import.meta.env.VITE_AZURE_SPEECH_REGION as string | undefined
+  const speechReady = Boolean(speechKey && speechRegion)
+
+  const districtIndex = useMemo(() => {
+    return districts.map(d => ({
+      id: d.id,
+      name: d.name.toLowerCase(),
+      label: `${d.name}, ${d.province}`,
+    }))
+  }, [districts])
+
+  const normalize = (value: string) => value.toLowerCase().replace(/[.,]/g, ' ')
+
+  const applySpeechResult = (text: string) => {
+    const normalized = normalize(text)
+    const match = districtIndex.find(d => normalized.includes(d.name))
+    if (match) {
+      onDistrictChange(match.id, match.label)
+    }
+
+    const numberMatch = normalized.match(/(\d+(?:[.,]\d+)?)/)
+    if (numberMatch) {
+      const luasValue = numberMatch[1].replace(',', '.')
+      onLuasChange(luasValue)
+    }
+
+    if (!match && !numberMatch) {
+      setSpeechError('Kami belum bisa menangkap lokasi atau luas lahan. Coba sebutkan kabupaten dan luasnya sekali lagi.')
+      setSpeechStatus('error')
+    }
+  }
+
+  const handleSpeechInput = async () => {
+    if (!speechReady || speechStatus === 'listening') return
+    setSpeechStatus('listening')
+    setSpeechError('')
+
+    try {
+      const sdk = await import('microsoft-cognitiveservices-speech-sdk')
+      const config = sdk.SpeechConfig.fromSubscription(speechKey as string, speechRegion as string)
+      config.speechRecognitionLanguage = 'id-ID'
+      const audioConfig = sdk.AudioConfig.fromDefaultMicrophoneInput()
+      const recognizer = new sdk.SpeechRecognizer(config, audioConfig)
+
+      recognizer.recognizeOnceAsync(result => {
+        if (result?.text) {
+          applySpeechResult(result.text)
+          setSpeechStatus('idle')
+        } else {
+          setSpeechError('Suara belum terbaca. Coba ulangi dengan suara lebih jelas.')
+          setSpeechStatus('error')
+        }
+        recognizer.close()
+      })
+    } catch {
+      setSpeechError('Fitur suara belum siap. Pastikan izin mikrofon dan coba lagi.')
+      setSpeechStatus('error')
+    }
+  }
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const option = e.target.selectedOptions[0]
     onDistrictChange(e.target.value, option.text)
@@ -49,7 +113,13 @@ export default function Step1({ districts, districtId, luas, fetchError, onDistr
         </div>
       )}
 
-      <button type="button" className="voice-card" disabled aria-label="Fitur suara segera hadir">
+      <button
+        type="button"
+        className="voice-card"
+        disabled={!speechReady || speechStatus === 'listening'}
+        aria-label={speechReady ? 'Gunakan input suara' : 'Fitur suara segera hadir'}
+        onClick={handleSpeechInput}
+      >
         <div className="voice-mic" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
@@ -60,9 +130,17 @@ export default function Step1({ districts, districtId, luas, fetchError, onDistr
         </div>
         <div className="voice-text">
           <div className="voice-title">🎙️ Cerita lewat suara</div>
-          <div className="voice-subtitle">🚀 Segera hadir di versi berikutnya</div>
+          <div className="voice-subtitle">
+            {speechReady ? (speechStatus === 'listening' ? '🎧 Mendengarkan...' : 'Klik untuk bicara') : '🚀 Segera hadir di versi berikutnya'}
+          </div>
         </div>
       </button>
+
+      {speechError && (
+        <div style={{ padding: '10px', background: 'var(--red-bg)', color: 'var(--red)', borderRadius: 'var(--radius-sm)', marginBottom: '14px', fontSize: '0.85rem' }}>
+          {speechError}
+        </div>
+      )}
 
       <div className="or-divider">atau isi langsung</div>
 
