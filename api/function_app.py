@@ -310,3 +310,19 @@ def gap_check(req: func.HttpRequest) -> func.HttpResponse:
     }
 
     return func.HttpResponse(json.dumps(result, ensure_ascii=False), status_code=200, headers=headers)
+
+
+# ── Weather Collection ────────────────────────────────────────────────────────
+@app.route(route="collect-weather", methods=["POST"])
+def collect_weather(req: func.HttpRequest) -> func.HttpResponse:
+    """Manual trigger for Open-Meteo weather collection. Body: {year, month}"""
+    from weather_collector import collect_weather_manual
+    return collect_weather_manual(req)
+
+
+# ── Commodity Price Scraper ───────────────────────────────────────────────────
+@app.route(route="scrape-prices", methods=["POST"])
+def scrape_prices(req: func.HttpRequest) -> func.HttpResponse:
+    """Scrape commodity prices from Bapanas using Playwright. Body: {province}"""
+    from price_scraper import scrape_prices_handler
+    return scrape_prices_handler(req)
