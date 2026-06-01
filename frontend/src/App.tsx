@@ -12,6 +12,7 @@ import Step3 from './components/form/Step3'
 import LoadingScreen from './components/form/LoadingScreen'
 import ResultScreen from './components/form/ResultScreen'
 import TechSection from './components/TechSection'
+import MapDashboard from './components/MapDashboard'
 import Footer from './components/Footer'
 
 export default function App() {
@@ -158,6 +159,7 @@ export default function App() {
         </div>
       </section>
 
+      <MapDashboard />
       <TechSection />
       <Footer />
     </>
