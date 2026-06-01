@@ -377,14 +377,22 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
         </div>
       </div>
 
-      {/* Forecast Chart */}
-      {rec._commodity && districtId && (
-        <ForecastChart
-          districtId={districtId}
-          commodity={rec._commodity}
-          currentPrice={rec.avgPrice}
-        />
-      )}
+      {/* Forecast Chart — always show if districtId is available */}
+      {districtId && (() => {
+        const commoditySlug = rec._commodity ||
+          COMMODITY_SLUG_MAP[rec.name.toLowerCase().trim()] ||
+          rec.name.toLowerCase().replace(/\s+/g, '_')
+        return (
+          <ForecastChart
+            districtId={districtId}
+            commodity={commoditySlug}
+            currentPrice={rec.avgPrice}
+            fallbackPredictedPrice={rec.predictedPrice}
+            commodityLabel={rec.name}
+            districtLabel={districtLabel.split(',')[0]}
+          />
+        )
+      })()}
 
       {/* Reasoning */}
       <div className="reasoning">

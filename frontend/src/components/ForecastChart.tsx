@@ -15,6 +15,9 @@ interface Props {
   districtId: string
   commodity: string
   currentPrice?: number
+  fallbackPredictedPrice?: number
+  commodityLabel?: string
+  districtLabel?: string
 }
 
 const MONTH_ID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des']
@@ -56,7 +59,7 @@ const SOURCE_LABEL: Record<string, string> = {
   none:          'Tidak ada data',
 }
 
-export default function ForecastChart({ districtId, commodity, currentPrice }: Props) {
+export default function ForecastChart({ districtId, commodity, currentPrice, fallbackPredictedPrice, commodityLabel, districtLabel }: Props) {
   const [data, setData]       = useState<ForecastData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState(false)
@@ -76,7 +79,126 @@ export default function ForecastChart({ districtId, commodity, currentPrice }: P
       Memuat grafik prediksi harga...
     </div>
   )
-  if (error || !data) return null
+
+  // ── Fallback chart when API is not running ────────────────────────────────
+  if (error || !data) {
+    if (!currentPrice || !fallbackPredictedPrice) return null
+    const now = currentPrice
+    const pred = fallbackPredictedPrice
+    const trendPct = ((pred - now) / now) * 100
+    const trendUp  = trendPct >= 0
+    const label    = commodityLabel || commodity.replace(/_/g, ' ')
+    const loc      = districtLabel  || ''
+
+    // Simple 2-point SVG line: Kini → 30 hari
+    const W = 340, H = 130, PL = 52, PR = 12, PT = 20, PB = 28
+    const cW = W - PL - PR, cH = H - PT - PB
+    const minP = Math.min(now, pred) * 0.88
+    const maxP = Math.max(now, pred) * 1.12
+    const ty = (p: number) => PT + cH - ((p - minP) / (maxP - minP)) * cH
+    const x0 = PL, x1 = PL + cW
+    const y0 = ty(now), y1 = ty(pred)
+    const yLevels = [minP, (minP + maxP) / 2, maxP]
+
+    return (
+      <div style={{
+        background: 'linear-gradient(160deg, #f0fdf4 0%, #ecfdf5 60%, #f7fdf9 100%)',
+        border: '1.5px solid #bbf7d0', borderRadius: '16px',
+        padding: '14px 14px 12px', marginBottom: '20px',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#14532d' }}>
+              📈 Prediksi Harga 30 Hari
+            </div>
+            <div style={{ fontSize: '0.72rem', color: '#16a34a', marginTop: '3px', opacity: 0.9 }}>
+              {label}{loc ? ` · ${loc}` : ''}
+            </div>
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '6px',
+            background: trendUp ? '#dcfce7' : '#fee2e2',
+            borderRadius: '20px', padding: '4px 10px',
+          }}>
+            <span style={{ fontSize: '1rem' }}>{trendUp ? '↑' : '↓'}</span>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.9rem', color: trendUp ? '#16a34a' : '#dc2626', lineHeight: 1 }}>
+                {Math.abs(trendPct).toFixed(1)}%
+              </div>
+              <div style={{ fontSize: '0.6rem', color: trendUp ? '#16a34a' : '#dc2626', opacity: 0.8 }}>30 hari</div>
+            </div>
+          </div>
+        </div>
+
+        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', display: 'block' }}>
+          <defs>
+            <linearGradient id="fbGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#22c55e" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#22c55e" stopOpacity="0.02" />
+            </linearGradient>
+          </defs>
+          {/* Grid */}
+          {yLevels.map((p, i) => (
+            <g key={i}>
+              <line x1={PL} y1={ty(p)} x2={PL + cW} y2={ty(p)} stroke="#d1fae5" strokeWidth="0.7" />
+              <text x={PL - 4} y={ty(p) + 3.5} textAnchor="end" fontSize="7.5" fill="#9ca3af">
+                {fmtPrice(p)}
+              </text>
+            </g>
+          ))}
+          {/* Area fill */}
+          <path
+            d={`M${x0},${y0} L${x1},${y1} L${x1},${PT + cH} L${x0},${PT + cH} Z`}
+            fill="url(#fbGrad)"
+          />
+          {/* Line */}
+          <line x1={x0} y1={y0} x2={x1} y2={y1}
+            stroke={trendUp ? '#16a34a' : '#dc2626'} strokeWidth="2.5"
+            strokeLinecap="round" strokeDasharray={trendUp ? 'none' : '6,3'} />
+          {/* Dots */}
+          <circle cx={x0} cy={y0} r="5" fill="white" stroke="#16a34a" strokeWidth="2" />
+          <circle cx={x0} cy={y0} r="2.5" fill="#16a34a" />
+          <circle cx={x1} cy={y1} r="6" fill="white" stroke={trendUp ? '#16a34a' : '#dc2626'} strokeWidth="2" />
+          <circle cx={x1} cy={y1} r="3" fill={trendUp ? '#16a34a' : '#dc2626'} />
+          {/* Labels */}
+          <text x={x0} y={y0 - 10} textAnchor="start" fontSize="8" fill="#6b7280">Kini</text>
+          <text x={x1} y={y1 - 10} textAnchor="end" fontSize="9" fontWeight="700" fill="#14532d">
+            Rp{fmtPrice(pred)}
+          </text>
+          {/* X axis */}
+          <line x1={PL} y1={PT + cH} x2={PL + cW} y2={PT + cH} stroke="#d1fae5" strokeWidth="1" />
+          <text x={x0} y={H - 4} textAnchor="start" fontSize="7.5" fill="#16a34a" fontWeight="700">▶ Sekarang</text>
+          <text x={x1} y={H - 4} textAnchor="end" fontSize="7.5" fill="#9ca3af">30 hari</text>
+        </svg>
+
+        {/* Summary cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '6px', marginTop: '10px' }}>
+          <div style={{ background: 'white', border: '1px solid #d1fae5', borderRadius: '10px', padding: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.6rem', color: '#6b7280', marginBottom: '3px', fontWeight: 600, textTransform: 'uppercase' }}>Harga Kini</div>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: '#14532d', wordBreak: 'break-all' }}>{fmtPriceFull(now)}</div>
+            <div style={{ fontSize: '0.58rem', color: '#9ca3af', marginTop: '3px' }}>per kg</div>
+          </div>
+          <div style={{ background: trendUp ? '#f0fdf4' : '#fff8f8', border: `1px solid ${trendUp ? '#86efac' : '#fca5a5'}`, borderRadius: '10px', padding: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.6rem', color: '#6b7280', marginBottom: '3px', fontWeight: 600, textTransform: 'uppercase' }}>30 Hari</div>
+            <div style={{ fontWeight: 800, fontSize: '0.78rem', color: trendUp ? '#16a34a' : '#dc2626', wordBreak: 'break-all' }}>{fmtPriceFull(pred)}</div>
+            <div style={{ marginTop: '3px' }}>
+              <span style={{ display: 'inline-block', fontSize: '0.65rem', fontWeight: 700, color: trendUp ? '#166534' : '#991b1b', background: trendUp ? '#dcfce7' : '#fee2e2', borderRadius: '10px', padding: '1px 6px' }}>
+                {trendUp ? '+' : ''}{trendPct.toFixed(1)}%
+              </span>
+            </div>
+          </div>
+          <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.6rem', color: '#6b7280', marginBottom: '3px', fontWeight: 600, textTransform: 'uppercase' }}>90 Hari</div>
+            <div style={{ fontSize: '0.72rem', color: '#9ca3af', marginTop: '8px' }}>Butuh API</div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: '8px', background: '#fffbeb', borderLeft: '3px solid #f59e0b', borderRadius: '0 8px 8px 0', padding: '6px 10px', fontSize: '0.7rem', color: '#92400e' }}>
+          ⚡ Grafik sederhana — jalankan <code style={{ fontSize: '0.68rem', background: '#fef3c7', padding: '1px 4px', borderRadius: '3px' }}>func start</code> untuk prediksi Prophet ML 90 hari.
+        </div>
+      </div>
+    )
+  }
 
   const hist = data.historical
   const fcastAll = data.forecast
