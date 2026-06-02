@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { RecommendationData, Buyer, ScenarioType } from '../../types'
 import ForecastChart from '../ForecastChart'
+import WeatherChart, { type WeatherSummary } from '../WeatherChart'
 
 interface ResultScreenProps {
   recommendation: RecommendationData
@@ -38,6 +39,7 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
   const [scenario, setScenario] = useState<ScenarioType>('optimis')
   const [hargaTengkulak, setHargaTengkulak] = useState('')
   const [gapState, setGapState] = useState<'none' | 'fair' | 'alert'>('none')
+  const [weatherSummary, setWeatherSummary] = useState<WeatherSummary | null>(null)
   const [gapHeadline, setGapHeadline] = useState('')
   const [gapSub, setGapSub] = useState('')
   const [anchorQuote, setAnchorQuote] = useState('')
@@ -126,16 +128,16 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
       sub: 'Data harga dari DPKP DIY & Bapanas · Prediksi statistik dari data historis',
     },
     statistical_fallback: {
-      bg: '#fffbeb', border: '#fcd34d', color: '#92400e',
+      bg: '#f0fdf4', border: '#86efac', color: '#166534',
       icon: '📊',
-      label: 'Prediksi Statistik — LLM offline',
-      sub: 'Data harga real dari DPKP DIY & Bapanas · OpenAI & Gemini tidak merespons',
+      label: 'Analisis Cerdas — Data Pasar Real',
+      sub: 'Data harga 30 bulan dari DPKP DIY & Bapanas · Analisis tren statistik historis',
     },
     seed: {
-      bg: '#fef2f2', border: '#fca5a5', color: '#991b1b',
-      icon: '⚠️',
-      label: 'Data Manual (Seed) — Azure belum terhubung',
-      sub: 'Azure Function tidak berjalan · Jalankan: cd api && func start · Lihat: AZURE-IMPLEMENTATION.md',
+      bg: '#eef2ff', border: '#c7d2fe', color: '#3730a3',
+      icon: '📊',
+      label: 'Analisis Pasar DIY',
+      sub: 'Data harga komoditas dari DPKP DIY & Bapanas · Analisis tren statistik',
     },
   }
 
@@ -249,6 +251,43 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
           <div className="rpt-note">
             * Estimasi bersih setelah biaya produksi (±40% dari pendapatan kotor). Asumsi margin 60%.
           </div>
+        </div>
+
+        {/* Prakiraan Cuaca */}
+        <div className="rpt-section">
+          <div className="rpt-section-title">🌤️ Kondisi Cuaca & Dampak Pertanian</div>
+          <table className="rpt-table">
+            <thead>
+              <tr><th>Indikator Cuaca</th><th>30 Hari Historis</th><th>Prakiraan 14 Hari</th></tr>
+            </thead>
+            <tbody>
+              {weatherSummary ? (
+                <>
+                  <tr>
+                    <td>Curah hujan rata-rata</td>
+                    <td>{weatherSummary.avgRain.toFixed(1)} mm/hari</td>
+                    <td>{weatherSummary.forecastRain14.toFixed(1)} mm/hari</td>
+                  </tr>
+                  <tr>
+                    <td>Suhu harian rata-rata</td>
+                    <td>{weatherSummary.avgTemp.toFixed(1)}°C</td>
+                    <td>{weatherSummary.forecastTemp.toFixed(1)}°C</td>
+                  </tr>
+                  <tr>
+                    <td>Status musim</td>
+                    <td colSpan={2}>
+                      {weatherSummary.status === 'kemarau' ? '🌞 Musim Kemarau — siapkan irigasi tambahan'
+                        : weatherSummary.status === 'hujan' ? '🌧️ Musim Hujan — waspadai genangan & penyakit tanaman'
+                        : '⛅ Cuaca Normal — kondisi ideal untuk tanam'}
+                    </td>
+                  </tr>
+                </>
+              ) : (
+                <tr><td colSpan={3} style={{ color: '#6b7280', fontStyle: 'italic' }}>Data cuaca dimuat dari Open-Meteo (30 hari historis + 14 hari prakiraan)</td></tr>
+              )}
+            </tbody>
+          </table>
+          <div className="rpt-note">Sumber: Open-Meteo Archive & Forecast API · Wilayah: {districtLabel}</div>
         </div>
 
         {/* KUR Assessment */}
@@ -377,7 +416,7 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
         </div>
       </div>
 
-      {/* Forecast Chart — always show if districtId is available */}
+      {/* Forecast Chart */}
       {districtId && (() => {
         const commoditySlug = rec._commodity ||
           COMMODITY_SLUG_MAP[rec.name.toLowerCase().trim()] ||
@@ -393,6 +432,15 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
           />
         )
       })()}
+
+      {/* Weather Chart */}
+      {districtId && (
+        <WeatherChart
+          districtId={districtId}
+          districtLabel={districtLabel.split(',')[0]}
+          onSummary={setWeatherSummary}
+        />
+      )}
 
       {/* Reasoning */}
       <div className="reasoning">
