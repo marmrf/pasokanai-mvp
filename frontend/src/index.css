@@ -597,6 +597,7 @@ section { padding: 60px 24px; }
 }
 .kur-check-status.ok { background: var(--green-50); color: var(--green-700); }
 .kur-check-status.warn { background: var(--amber-bg); color: var(--amber); }
+.kur-check-status.info { background: #eff6ff; color: #1e40af; }
 
 /* ── MARKET FAIRNESS LAYER ───────── */
 .mfl-section {

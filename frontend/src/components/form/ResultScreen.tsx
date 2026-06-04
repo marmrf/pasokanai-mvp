@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { RecommendationData, Buyer, ScenarioType } from '../../types'
 import ForecastChart from '../ForecastChart'
 import WeatherChart, { type WeatherSummary } from '../WeatherChart'
 import { generateKurPdf } from '../../lib/generateKurPdf'
+import { computeKurScore, factorIcon } from '../../lib/kurScore'
 
 interface ResultScreenProps {
   recommendation: RecommendationData
@@ -49,6 +50,21 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
 
   const shortLocation = districtLabel.split(',')[0]
   const confidence = rec.confidence ?? 78
+
+  // Data-driven KUR feasibility — dihitung dari data nyata (bukan statis 74),
+  // recompute saat ringkasan cuaca tersedia. Transparan & dapat diaudit.
+  const kur = useMemo(
+    () => computeKurScore({
+      confidence,
+      avgPrice: rec.avgPrice,
+      predictedPrice: rec.predictedPrice,
+      risk: rec.risk,
+      weatherStatus: weatherSummary?.status ?? null,
+      luasHa: luas,
+    }),
+    [confidence, rec.avgPrice, rec.predictedPrice, rec.risk, weatherSummary, luas],
+  )
+  const kurToneColor = kur.tone === 'ok' ? '#16a34a' : kur.tone === 'mid' ? '#d97706' : '#dc2626'
 
   const handleGapCheck = async (value: string) => {
     setHargaTengkulak(value)
@@ -295,17 +311,22 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
         <div className="rpt-section">
           <div className="rpt-section-title">🏦 Penilaian Kelayakan KUR (Kredit Usaha Rakyat)</div>
           <div className="rpt-kur-grid">
-            <div className="rpt-kur-score-block">
-              <div className="rpt-kur-score">74</div>
-              <div className="rpt-kur-score-label">LAYAK<br/>DIAJUKAN</div>
+            <div className="rpt-kur-score-block" style={{ borderColor: kurToneColor }}>
+              <div className="rpt-kur-score" style={{ color: kurToneColor }}>{kur.score}</div>
+              <div className="rpt-kur-score-label">{kur.label.toUpperCase()}</div>
             </div>
             <div className="rpt-kur-checks">
-              <div className="rpt-kur-item ok">✅ Estimasi panen mendukung kemampuan bayar cicilan</div>
-              <div className="rpt-kur-item ok">✅ Lahan di wilayah yang dilayani program KUR pertanian</div>
-              <div className="rpt-kur-item ok">✅ Komoditas termasuk dalam program subsidi KUR 2024–2026</div>
-              <div className="rpt-kur-item warn">⚠️ Pastikan sertifikat/surat lahan lengkap sebelum mengajukan</div>
-              <div className="rpt-kur-item info">ℹ️ Plafon KUR Mikro: s/d Rp 100 juta · Bunga 6%/tahun · Tanpa jaminan</div>
+              {kur.factors.map(f => (
+                <div key={f.key} className={`rpt-kur-item ${f.status}`}>
+                  {factorIcon(f.status)} <strong>{f.label} ({f.points}/{f.max}):</strong> {f.detail}
+                </div>
+              ))}
+              <div className="rpt-kur-item info">ℹ️ Plafon KUR Mikro: s/d Rp 100 juta · Bunga 6%/tahun · Tanpa jaminan untuk pinjaman kecil</div>
             </div>
+          </div>
+          <div className="rpt-note">
+            Skor kelayakan {kur.score}/100 dihitung dari: tren harga 30 hari, keyakinan analisis,
+            kesesuaian cuaca, risiko komoditas, dan skala lahan. Bukan keputusan akhir bank.
           </div>
           <div className="rpt-kur-cta">
             Bawa laporan ini ke kantor <strong>BRI, BNI, atau Bank Mandiri</strong> terdekat
@@ -490,39 +511,35 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
       </p>
       <div className="kur-card">
         <div className="kur-top">
-          <div className="kur-score-circle">
-            <div className="kur-score-num">74</div>
+          <div
+            className="kur-score-circle"
+            style={{ background: `conic-gradient(${kurToneColor} 0% ${kur.score}%, var(--line-soft) ${kur.score}% 100%)` }}
+          >
+            <div className="kur-score-num" style={{ color: kurToneColor }}>{kur.score}</div>
           </div>
           <div>
-            <div className="kur-status">Layak diajukan</div>
-            <div className="kur-desc">Lihat dari hasil panen, lokasi lahan, dan riwayat tanam Anda — kemungkinan besar bisa lolos pengajuan KUR.</div>
+            <div className="kur-status">{kur.label}</div>
+            <div className="kur-desc">
+              Skor <strong>{kur.score}/100</strong> ini dihitung dari data nyata daerah Anda — tren harga,
+              keyakinan analisis, cuaca, risiko komoditas, dan luas lahan. Bukan keputusan akhir bank.
+            </div>
           </div>
         </div>
         <div className="kur-checks">
-          <div className="kur-check">
-            <div className="kur-check-icon">🌾</div>
-            <div className="kur-check-body">
-              <div className="kur-check-title">Hasil panen perkiraannya bagus</div>
-              <div className="kur-check-desc">Anda dinilai mampu bayar cicilannya nanti</div>
-            </div>
-            <div className="kur-check-status ok">✓ Aman</div>
-          </div>
-          <div className="kur-check">
-            <div className="kur-check-icon">📍</div>
-            <div className="kur-check-body">
-              <div className="kur-check-title">Lahan ada di daerah yang dilayani KUR</div>
-              <div className="kur-check-desc">Pemerintah memang menyalurkan KUR di sini</div>
-            </div>
-            <div className="kur-check-status ok">✓ Aman</div>
-          </div>
-          <div className="kur-check">
-            <div className="kur-check-icon">💰</div>
-            <div className="kur-check-body">
-              <div className="kur-check-title">Surat-surat lahan</div>
-              <div className="kur-check-desc">Pastikan sertifikat / surat lahan lengkap dulu</div>
-            </div>
-            <div className="kur-check-status warn">⚠ Cek dulu</div>
-          </div>
+          {kur.factors.map(f => {
+            const icon: Record<string, string> = { price: '📈', confidence: '🎯', weather: '🌤️', risk: '🛡️', scale: '🌾' }
+            const badge = f.status === 'ok' ? '✓ Baik' : f.status === 'warn' ? '⚠ Perhatikan' : 'ℹ Catatan'
+            return (
+              <div className="kur-check" key={f.key}>
+                <div className="kur-check-icon">{icon[f.key] ?? '•'}</div>
+                <div className="kur-check-body">
+                  <div className="kur-check-title">{f.label} <span style={{ color: 'var(--ink-mute)', fontWeight: 400 }}>({f.points}/{f.max})</span></div>
+                  <div className="kur-check-desc">{f.detail}</div>
+                </div>
+                <div className={`kur-check-status ${f.status}`}>{badge}</div>
+              </div>
+            )
+          })}
         </div>
       </div>
 
