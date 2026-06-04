@@ -989,14 +989,30 @@ section { padding: 60px 24px; }
   gap: 16px;
 }
 .tech-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "icon title"
+    "desc desc";
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 12px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: var(--radius);
   padding: 22px;
 }
-.tech-card-icon { font-size: 1.6rem; margin-bottom: 12px; }
-.tech-card-title { color: white; font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; margin-bottom: 6px; }
-.tech-card-desc { font-size: 0.85rem; color: rgba(255,255,255,0.7); line-height: 1.55; }
+.tech-card-icon {
+  grid-area: icon;
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  font-size: 1.5rem; line-height: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+}
+.tech-card-title { grid-area: title; color: white; font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; line-height: 1.25; }
+.tech-card-desc { grid-area: desc; font-size: 0.85rem; color: rgba(255,255,255,0.7); line-height: 1.55; }
 
 /* ── FOOTER ────────────────────────────── */
 footer {
