@@ -212,17 +212,13 @@ def save_offer_to_supabase(kabupaten: str, komoditas: str, harga: float):
 
 
 # ── Fallback hardcoded prices (used if Supabase unavailable) ──────────────
+# MVP scope: data coverage = 5 kabupaten DIY saja (input daerah nasional ditangani di frontend).
 HARGA_ACUAN_FALLBACK = {
     "sleman":       {"padi": {"avg": 6300, "ref": 6600}, "jagung": {"avg": 4600, "ref": 5200}, "cabai_rawit": {"avg": 45000, "ref": 50000}, "cabai": {"avg": 35000, "ref": 38000}},
     "bantul":       {"padi": {"avg": 6500, "ref": 6800}, "bawang_merah": {"avg": 25000, "ref": 28000}},
     "gunungkidul":  {"kacang_tanah": {"avg": 12500, "ref": 14000}, "singkong": {"avg": 1600, "ref": 1800}},
     "kulon_progo":  {"padi": {"avg": 6200, "ref": 6500}, "bawang_merah": {"avg": 24000, "ref": 27000}},
     "kota_yogyakarta": {"cabai_rawit": {"avg": 46000, "ref": 50000}, "sayuran_daun": {"avg": 5500, "ref": 6000}},
-    "klaten":       {"padi": {"avg": 6600, "ref": 6900}, "tembakau": {"avg": 60000, "ref": 65000}},
-    "magelang":     {"cabai_rawit": {"avg": 48000, "ref": 52000}, "sayuran_daun": {"avg": 5500, "ref": 6000}},
-    "brebes":       {"bawang_merah": {"avg": 27000, "ref": 30000}},
-    "malang":       {"kentang": {"avg": 12500, "ref": 14000}, "wortel": {"avg": 7800, "ref": 8500}},
-    "jember":       {"edamame": {"avg": 11000, "ref": 12000}, "kedelai": {"avg": 9800, "ref": 10500}},
 }
 
 OFFTAKER_FALLBACK = [
@@ -240,11 +236,6 @@ KAB_KOORDINAT_FALLBACK = {
     "gunungkidul": {"lat": -7.966, "lng": 110.616},
     "kulon_progo": {"lat": -7.900, "lng": 110.160},
     "kota_yogyakarta": {"lat": -7.797, "lng": 110.370},
-    "klaten": {"lat": -7.705, "lng": 110.606},
-    "magelang": {"lat": -7.479, "lng": 110.217},
-    "brebes": {"lat": -6.871, "lng": 109.042},
-    "malang": {"lat": -7.983, "lng": 112.621},
-    "jember": {"lat": -8.172, "lng": 113.698},
 }
 
 

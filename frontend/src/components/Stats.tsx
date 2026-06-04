@@ -11,8 +11,8 @@ export default function Stats() {
           <div className="stat-label">Kabupaten DIY tercakup</div>
         </div>
         <div className="stat">
-          <div className="stat-num">3</div>
-          <div className="stat-label">Langkah saja sampai dapat saran</div>
+          <div className="stat-num">1</div>
+          <div className="stat-label">Halaman saja sampai dapat saran</div>
         </div>
         <div className="stat">
           <div className="stat-num">0</div>

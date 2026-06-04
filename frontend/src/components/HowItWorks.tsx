@@ -5,7 +5,7 @@ export default function HowItWorks() {
         <div className="section-head">
           <span className="kicker">Caranya Mudah</span>
           <h2>Tinggal cerita, kami yang hitungkan</h2>
-          <p>Tidak perlu pintar komputer. Cukup jawab 3 pertanyaan singkat tentang lahan Anda.</p>
+          <p>Tidak perlu pintar komputer. Cukup ceritakan lahan Anda dalam satu halaman — sisanya kami yang kerjakan.</p>
         </div>
         <div className="steps">
           <div className="step-card">

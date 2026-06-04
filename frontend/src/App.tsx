@@ -7,9 +7,7 @@ import Hero from './components/Hero'
 import Stats from './components/Stats'
 import HowItWorks from './components/HowItWorks'
 import DevBanner from './components/DevBanner'
-import Step1 from './components/form/Step1'
-import Step2 from './components/form/Step2'
-import Step3 from './components/form/Step3'
+import InputForm from './components/form/InputForm'
 import LoadingScreen from './components/form/LoadingScreen'
 import ResultScreen from './components/form/ResultScreen'
 import TechSection from './components/TechSection'
@@ -17,7 +15,7 @@ import MapDashboard from './components/MapDashboard'
 import Footer from './components/Footer'
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('step1')
+  const [screen, setScreen] = useState<Screen>('input')
   const [districts, setDistricts] = useState<District[]>([])
 
   // Form state
@@ -55,7 +53,7 @@ export default function App() {
       const row = await fetchRecommendation(districtId, priority as 'profit' | 'safe')
       if (!row) {
         setFetchError('Maaf, untuk daerah ini belum ada datanya. Coba pilih kabupaten lain dulu ya 🙏')
-        setScreen('step1')
+        setScreen('input')
         return
       }
       const recData: RecommendationData = {
@@ -69,7 +67,7 @@ export default function App() {
     } catch (err) {
       console.error('Analysis error:', err)
       setFetchError('Terjadi kesalahan saat memuat data. Silakan coba lagi.')
-      setScreen('step1')
+      setScreen('input')
     }
   }, [districtId, priority])
 
@@ -78,7 +76,7 @@ export default function App() {
   }, [])
 
   const handleReset = useCallback(() => {
-    setScreen('step1')
+    setScreen('input')
     setDistrictId('')
     setDistrictLabel('')
     setLuas('')
@@ -113,34 +111,19 @@ export default function App() {
 
       <section className="app-section" id="app">
         <div className="app">
-          {screen === 'step1' && (
-            <Step1
+          {screen === 'input' && (
+            <InputForm
               districts={districts}
               districtId={districtId}
-              luas={luas}
-              fetchError={fetchError}
-              onDistrictChange={(id, label) => { setDistrictId(id); setDistrictLabel(label) }}
-              onLuasChange={setLuas}
-              onNext={() => setScreen('step2')}
-            />
-          )}
-          {screen === 'step2' && (
-            <Step2
-              modal={modal}
-              priority={priority}
-              onModalChange={setModal}
-              onPriorityChange={setPriority}
-              onBack={() => setScreen('step1')}
-              onNext={() => setScreen('step3')}
-            />
-          )}
-          {screen === 'step3' && (
-            <Step3
               districtLabel={districtLabel}
               luas={luas}
               modal={modal}
               priority={priority}
-              onBack={() => setScreen('step2')}
+              fetchError={fetchError}
+              onDistrictChange={(id, label) => { setDistrictId(id); setDistrictLabel(label) }}
+              onLuasChange={setLuas}
+              onModalChange={setModal}
+              onPriorityChange={setPriority}
               onStart={handleStartAnalysis}
             />
           )}

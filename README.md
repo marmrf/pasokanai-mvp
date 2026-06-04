@@ -11,6 +11,10 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://typescriptlang.org)
 [![Prophet](https://img.shields.io/badge/ML-Prophet-FF6B35)](https://facebook.github.io/prophet/)
 
+🔗 **Demo langsung:** https://polite-hill-0063f5500.7.azurestaticapps.net
+
+> Dibangun untuk **Microsoft ElevAIte — AI Impact Hackathon**. Memanfaatkan **Azure Static Web Apps, Azure Functions, Azure OpenAI, dan Azure Speech** untuk menghadirkan dampak nyata bagi 33 juta petani kecil Indonesia.
+
 ---
 
 ## 📋 Tentang PasokanAI
@@ -28,6 +32,8 @@ Platform ini mengintegrasikan data publik yang terfragmentasi menjadi keputusan 
 
 | Fitur | Status | Deskripsi |
 |-------|--------|-----------|
+| 📝 Input 1 Halaman | ✅ Live | Semua pertanyaan dalam satu layar — ramah untuk petani, optimal di HP |
+| 🇮🇩 Pilih Daerah Nasional | ✅ Live | Combobox ketik-cari seluruh kab/kota Indonesia (514). Daerah tanpa data → pop-up "segera hadir" yang jujur, bukan mengarang |
 | 🌾 Rekomendasi Komoditas | ✅ Live | Saran tanaman terbaik berdasarkan lokasi & prioritas |
 | 📈 Grafik Prediksi Harga | ✅ Live | Chart 90 hari dari Prophet ML — historical + forecast + confidence band |
 | 🛡️ Gap Alert (MFL) | ✅ Live | Deteksi harga tengkulak tidak wajar (>15% gap) |
@@ -36,8 +42,8 @@ Platform ini mengintegrasikan data publik yang terfragmentasi menjadi keputusan 
 | 🌧️ Data Cuaca | ✅ Live | Open-Meteo archive API — 28 bulan, 5 kabupaten DIY |
 | 📊 Harga Komoditas | ✅ Live | 30 bulan histori · 9 komoditas · 5 kabupaten (1.189 records) |
 | 🤖 ML Forecasting | ✅ Live | Prophet — dilatih lokal, auto via GitHub Actions setiap bulan |
-| 📄 Proposal KUR | ✅ Live | Cetak laporan profesional lengkap sebagai proposal ke bank |
-| 🎙️ Input Suara | ✅ Live | Azure Speech Services — Bahasa Indonesia |
+| 📄 Proposal KUR (PDF) | ✅ Live | Unduh PDF ringkas berisi hasil penting saja (rekomendasi, prediksi harga, skenario pendapatan, cuaca, kelayakan KUR) — siap dibawa ke bank |
+| 🎙️ Input Suara | ✅ Live | Azure Speech Services — Bahasa Indonesia (Bahasa Daerah menyusul) |
 
 ---
 
@@ -241,12 +247,41 @@ pasokanai-mvp/
 
 ## 🎯 MVP Scope
 
-Fase saat ini mencakup **Daerah Istimewa Yogyakarta** (5 kabupaten):
+**Cakupan data (harga, cuaca, forecast)** saat ini: **Daerah Istimewa Yogyakarta** — 5 kabupaten:
 - Sleman, Bantul, Kulon Progo, Gunungkidul, Kota Yogyakarta
 
-9 komoditas: padi, jagung, cabai, cabai rawit, bawang merah, kacang tanah, kedelai, singkong, sayuran daun
+**Cakupan input daerah:** seluruh Indonesia — petani dari kabupaten/kota mana pun (514) bisa memilih daerahnya lewat combobox ketik-cari. Daerah yang datanya belum tersedia ditampilkan pop-up **"segera hadir"** yang jujur (kami tidak mengarang hasil untuk daerah tanpa data), sambil menyiapkan jalur ekspansi nasional.
 
-Ekspansi nasional belum termasuk dalam MVP.
+9 komoditas: padi, jagung, cabai, cabai rawit, bawang merah, kacang tanah, kedelai, singkong, sayuran daun.
+
+---
+
+## ☁️ Layanan Microsoft Azure yang Dipakai
+
+| Layanan Azure | Peran dalam PasokanAI |
+|---------------|------------------------|
+| **Azure Static Web Apps** | Hosting frontend React + routing + CDN global |
+| **Azure Functions** (Python) | Seluruh API: rekomendasi, forecast, Gap Alert, koleksi cuaca, scraping harga |
+| **Azure OpenAI** (GPT-4o-mini) | Reasoning: penjelasan rekomendasi & kalimat negosiasi anti-tengkulak (fallback Gemini) |
+| **Azure Speech Services** | Input suara Bahasa Indonesia di form (Speech-to-Text `id-ID`) |
+| **GitHub Actions** | Pelatihan Prophet ML bulanan + CI/CD deploy ke Azure Static Web Apps |
+
+> Forecasting harga selalu dari **Prophet (statistik)**, bukan dari LLM — AI hanya menjelaskan, tidak meramal angka.
+
+---
+
+## 🛠️ Troubleshooting
+
+| Gejala | Penyebab & Solusi |
+|--------|-------------------|
+| Banner kuning "Azure Functions offline" di dev | Normal saat dev tanpa API. Jalankan `cd api && func start`. Frontend tetap jalan; fitur AI/Gap Alert butuh Functions. |
+| `/api/service-status` 500 di lokal | Sama seperti di atas — Functions belum running. Tidak terjadi di produksi (Azure). |
+| Daerah dipilih tapi muncul pop-up "segera hadir" | Memang disengaja: hanya 5 kabupaten DIY (bertanda ✅) yang punya data. Daerah lain menunggu ekspansi. |
+| Combobox daerah kosong | Daftar daerah bersifat statis (514 kab/kota) — tidak bergantung Supabase. Jika tetap kosong, cek error build. |
+| Grafik harga tidak muncul | `forecast_results` belum terisi. Jalankan `python api/prophet_forecaster.py` atau trigger workflow `ml_forecast.yml`. |
+| Input suara tidak aktif | Set `VITE_AZURE_SPEECH_KEY` & `VITE_AZURE_SPEECH_REGION` di `frontend/.env`, lalu izinkan akses mikrofon di browser. |
+
+**Catatan deployment:** Azure Static Web Apps melakukan auto-deploy dari branch `hamzah-development`. `.mcp.json` sengaja tidak di-track (berisi token MCP lokal) — lihat `.gitignore`.
 
 ---
 

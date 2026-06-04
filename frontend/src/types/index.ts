@@ -41,6 +41,6 @@ export interface Buyer {
   contact: string
 }
 
-export type Screen = 'step1' | 'step2' | 'step3' | 'loading' | 'result'
+export type Screen = 'input' | 'loading' | 'result'
 export type Priority = 'profit' | 'safe' | ''
 export type ScenarioType = 'optimis' | 'normal' | 'pesimis'

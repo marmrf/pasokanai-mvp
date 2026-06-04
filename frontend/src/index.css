@@ -787,6 +787,91 @@ section { padding: 60px 24px; }
 .kur-modal-note { font-size: 0.9rem; color: var(--ink-soft); }
 .kur-modal-actions { padding: 0 18px 18px; display: flex; justify-content: flex-end; }
 
+/* ── VOICE NOTE (Bahasa Daerah disclaimer) ─────── */
+.voice-note { font-size: 0.72rem; color: var(--green-700); margin-top: 4px; font-weight: 600; }
+
+/* ── REGION COMBOBOX (national search) ─────────── */
+.combo { position: relative; }
+.combo-input { padding-right: 36px; }
+.combo-caret {
+  position: absolute; right: 14px; top: 13px;
+  color: var(--ink-mute); pointer-events: none; font-size: 0.8rem;
+}
+.combo-list {
+  position: absolute; z-index: 60;
+  top: calc(100% + 6px); left: 0; right: 0;
+  max-height: 320px; overflow-y: auto;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+.combo-hint { font-size: 0.78rem; color: var(--ink-mute); padding: 8px 10px 6px; }
+.combo-empty { font-size: 0.88rem; color: var(--ink-soft); padding: 16px 10px; text-align: center; }
+.combo-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; text-align: left;
+  padding: 11px 12px; border: none; background: transparent;
+  border-radius: 9px; cursor: pointer;
+}
+.combo-item:hover, .combo-item.active { background: var(--green-50); }
+.combo-item-main { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.combo-item-name { font-weight: 600; color: var(--ink); font-size: 0.95rem; }
+.combo-item-prov { font-size: 0.76rem; color: var(--ink-mute); }
+.combo-badge {
+  flex-shrink: 0; font-size: 0.66rem; font-weight: 700;
+  color: var(--green-700); background: var(--green-50);
+  border: 1px solid var(--green-300);
+  padding: 3px 8px; border-radius: 999px; white-space: nowrap;
+}
+
+/* ── INFO MODAL (friendly, branded — replaces native alert) ── */
+.info-modal {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(17, 24, 39, 0.5);
+  display: grid; place-items: center; padding: 20px;
+  animation: infoFade 0.2s ease;
+}
+.info-modal-card {
+  position: relative; background: var(--paper);
+  border-radius: var(--radius); max-width: 460px; width: 100%;
+  padding: 28px 24px 22px;
+  box-shadow: var(--shadow-lg); border: 1px solid var(--line-soft);
+  text-align: center;
+  animation: infoPop 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.info-modal-close {
+  position: absolute; top: 12px; right: 14px;
+  background: transparent; border: none; cursor: pointer;
+  font-size: 1rem; color: var(--ink-mute);
+}
+.info-modal-emoji { font-size: 3rem; line-height: 1; margin-bottom: 10px; }
+.info-modal-title { font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--green-900); margin-bottom: 12px; }
+.info-modal-body { font-size: 0.95rem; color: var(--ink); line-height: 1.6; text-align: left; }
+.info-modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+@keyframes infoFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes infoPop { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+/* ── TOAST (friendly nudge — never plain black) ── */
+.app-toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  z-index: 10001; display: flex; align-items: center; gap: 10px;
+  max-width: 90vw; padding: 12px 18px; border-radius: 999px;
+  background: var(--green-900); color: white;
+  box-shadow: var(--shadow-lg); font-size: 0.9rem; font-weight: 500;
+  animation: toastUp 0.25s ease;
+}
+.app-toast--warn { background: #b45309; }
+.app-toast--info { background: var(--green-900); }
+.app-toast--success { background: var(--green-700); }
+.app-toast-emoji { font-size: 1.1rem; }
+@keyframes toastUp {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
 /* ── PRINT (screen) ─────────────────────────── */
 .print-only { display: none; }
 .kur-report { display: none; }

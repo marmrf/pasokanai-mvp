@@ -146,7 +146,7 @@ export default function MapDashboard() {
                 💧 Kelembapan: <b>${w.humidity}%</b><br/>
                 <small style="color:#888">${w.weather_date}</small>
               </div>
-            ` : '<br/><em style="color:#888">Belum ada data cuaca</em>'}
+            ` : '<div style="margin-top:8px;padding:8px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;color:#15803d;font-size:0.82rem">🌦️ Data cuaca daerah ini sedang kami kumpulkan — segera tersedia 🙏</div>'}
           </div>
         `)
         markersRef.current!.addLayer(marker)
@@ -171,7 +171,7 @@ export default function MapDashboard() {
                 💰 <b>${d.latestPrice.commodity.replace(/_/g, ' ')}</b><br/>
                 Harga terkini: <b>Rp ${d.latestPrice.price.toLocaleString('id-ID')}/kg</b>
               </div>
-            ` : '<br/><em style="color:#888">Data harga belum tersedia</em>'}
+            ` : '<div style="margin-top:8px;padding:8px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;color:#15803d;font-size:0.82rem">💰 Data harga daerah ini sedang kami siapkan — segera tersedia 🙏</div>'}
             <div style="margin-top:8px;color:#6b7280;font-size:0.8rem">
               📊 Sumber: DPKP DIY &amp; Bapanas
             </div>

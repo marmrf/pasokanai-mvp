@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { RecommendationData, Buyer, ScenarioType } from '../../types'
 import ForecastChart from '../ForecastChart'
 import WeatherChart, { type WeatherSummary } from '../WeatherChart'
+import { generateKurPdf } from '../../lib/generateKurPdf'
 
 interface ResultScreenProps {
   recommendation: RecommendationData
@@ -631,11 +632,11 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
             <div className="next-step-desc">Tunjukkan ke keluarga atau penyuluh</div>
           </div>
         </button>
-        <button className="next-step" onClick={() => window.print()}>
+        <button className="next-step" onClick={() => generateKurPdf(shortLocation)}>
           <div className="next-step-icon">📄</div>
           <div className="next-step-body">
-            <div className="next-step-title">Cetak Proposal KUR</div>
-            <div className="next-step-desc">Laporan lengkap siap dibawa ke bank</div>
+            <div className="next-step-title">Unduh Proposal KUR (PDF)</div>
+            <div className="next-step-desc">Ringkasan hasil penting, siap dibawa ke bank</div>
           </div>
         </button>
         <button className="next-step" onClick={() => setShowKurInfo(true)}>
