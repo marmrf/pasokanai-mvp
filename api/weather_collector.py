@@ -12,14 +12,14 @@ import urllib.parse
 from datetime import date, timedelta
 from calendar import monthrange
 
-from dotenv import load_dotenv
-
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-app_weather = func.FunctionApp()
 
 
 def get_supabase():
@@ -133,30 +133,18 @@ def collect_weather_for_month(target_date: date) -> list[dict]:
     return records
 
 
-# ── Timer Trigger: 1st of every month at 05:05 WIB (22:05 UTC) ───────────────
-@app_weather.timer_trigger(
-    schedule="0 5 22 1 * *",   # UTC: 22:05 on day 1 = 05:05 WIB on day 1
-    arg_name="timer",
-    run_on_startup=False,
-    use_monitor=True,
-)
 def weather_collector_timer(timer: func.TimerRequest) -> None:
-    """Monthly weather collection from Open-Meteo for all DIY districts."""
+    """Monthly weather collection — registered on main app in function_app.py."""
     if timer.past_due:
         logger.warning("Timer is past due — running immediately")
-
-    # Collect for previous completed month (avoids partial data for current month)
     today = date.today()
     first_of_this_month = today.replace(day=1)
     last_month = first_of_this_month - timedelta(days=1)
-
     logger.info("Starting weather collection for %s-%02d", last_month.year, last_month.month)
     records = collect_weather_for_month(last_month)
     logger.info("Weather collection complete — %d records saved", len(records))
 
 
-# ── HTTP Trigger: manual run / backfill ───────────────────────────────────────
-@app_weather.route(route="collect-weather", methods=["POST"])
 def collect_weather_manual(req: func.HttpRequest) -> func.HttpResponse:
     """
     Manually trigger weather collection for a specific year-month.

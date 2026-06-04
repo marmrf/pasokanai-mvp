@@ -58,3 +58,4 @@ supabase/functions/
 .env
 .env.*
 !.env.example
+.mcp.json

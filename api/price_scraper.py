@@ -18,9 +18,11 @@ import os
 import logging
 from datetime import date
 
-from dotenv import load_dotenv
-
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
