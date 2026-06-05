@@ -4,6 +4,7 @@ import ForecastChart from '../ForecastChart'
 import WeatherChart, { type WeatherSummary } from '../WeatherChart'
 import { generateKurPdf } from '../../lib/generateKurPdf'
 import { computeKurScore, factorIcon } from '../../lib/kurScore'
+import Accordion from '../common/Accordion'
 
 interface ResultScreenProps {
   recommendation: RecommendationData
@@ -135,13 +136,13 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
     azure_openai: {
       bg: '#f0fdf4', border: '#86efac', color: '#166534',
       icon: '🤖',
-      label: 'Dihasilkan AI — Azure OpenAI (GPT-4o-mini)',
+      label: 'Dihasilkan AI · Azure OpenAI (GPT-4o-mini)',
       sub: 'Data harga dari DPKP DIY & Bapanas · Prediksi statistik dari data historis',
     },
     gemini: {
-      bg: '#eef2ff', border: '#c7d2fe', color: '#3730a3',
-      icon: '✨',
-      label: 'Dihasilkan AI — Gemini',
+      bg: '#f0fdf4', border: '#86efac', color: '#166534',
+      icon: '🤖',
+      label: 'Analisis AI PasokanAI',
       sub: 'Data harga dari DPKP DIY & Bapanas · Prediksi statistik dari data historis',
     },
     statistical_fallback: {
@@ -438,33 +439,7 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
         </div>
       </div>
 
-      {/* Forecast Chart */}
-      {districtId && (() => {
-        const commoditySlug = rec._commodity ||
-          COMMODITY_SLUG_MAP[rec.name.toLowerCase().trim()] ||
-          rec.name.toLowerCase().replace(/\s+/g, '_')
-        return (
-          <ForecastChart
-            districtId={districtId}
-            commodity={commoditySlug}
-            currentPrice={rec.avgPrice}
-            fallbackPredictedPrice={rec.predictedPrice}
-            commodityLabel={rec.name}
-            districtLabel={districtLabel.split(',')[0]}
-          />
-        )
-      })()}
-
-      {/* Weather Chart */}
-      {districtId && (
-        <WeatherChart
-          districtId={districtId}
-          districtLabel={districtLabel.split(',')[0]}
-          onSummary={setWeatherSummary}
-        />
-      )}
-
-      {/* Reasoning */}
+      {/* Reasoning — jawaban dulu, sebelum detail */}
       <div className="reasoning">
         <div className="reasoning-head">
           💡 Kenapa kami sarankan ini?
@@ -473,39 +448,85 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
         <div className="reasoning-body">{rec.reasoning}</div>
       </div>
 
-      {/* Scenarios */}
-      <h3 className="subsection-title">🔮 Bagaimana kalau...</h3>
-      <p style={{ fontSize: '0.92rem', color: 'var(--ink-soft)', marginBottom: '16px' }}>
-        Hasil panen tergantung cuaca dan pasar. Kami tunjukkan 3 kemungkinan, supaya Anda siap apapun yang terjadi.
-      </p>
-      <div className="scenario-tabs">
-        {(['optimis', 'normal', 'pesimis'] as ScenarioType[]).map(s => (
-          <button
-            key={s}
-            className={`scenario-tab${scenario === s ? ' active' : ''}`}
-            onClick={() => setScenario(s)}
-          >
-            {SCENARIO_LABELS[s]}
-          </button>
-        ))}
-      </div>
-
-      {(['optimis', 'normal', 'pesimis'] as ScenarioType[]).map(s => (
-        <div key={s} id={`sc-${s}`} className={`scenario-card${scenario === s ? ' active' : ''}`}>
-          <div className="scenario-income">{rec.scenarios[s][0]}</div>
-          <div className="scenario-income-sub">setiap hektare · perkiraan untung bersih</div>
-          <div className="scenario-detail">
-            <div><div className="lbl">Risiko</div><div className="val">{SCENARIO_RISK[s]}</div></div>
-            <div><div className="lbl">Harga jual</div><div className="val">{rec.scenarios[s][1]}</div></div>
-            <div><div className="lbl">Cuaca</div><div className="val">{SCENARIO_CUACA[s]}</div></div>
-            <div><div className="lbl">Pasar</div><div className="val">{SCENARIO_PASAR[s]}</div></div>
-          </div>
-          <div className="scenario-note">{SCENARIO_NOTE[s]}</div>
+      {/* Gap Alert CTA — fitur bintang, dipromosikan ke atas */}
+      <button
+        type="button"
+        className="gap-cta print-hide"
+        onClick={() => document.getElementById('mfl')?.scrollIntoView({ behavior: 'smooth' })}
+      >
+        <div className="gap-cta-icon" aria-hidden="true">🛡️</div>
+        <div className="gap-cta-body">
+          <div className="gap-cta-title">Sudah ditawar tengkulak? Cek dulu di sini</div>
+          <div className="gap-cta-sub">Kami bandingkan dengan harga pasar, lengkap dengan kalimat negosiasi siap pakai.</div>
         </div>
-      ))}
+        <div className="gap-cta-arrow" aria-hidden="true">↓</div>
+      </button>
+
+      {/* Detail — progressive disclosure (tertutup supaya tidak kewalahan) */}
+      {districtId && (
+        <Accordion title="📈 Prediksi harga 90 hari" subtitle="Grafik tren harga historis + perkiraan">
+          {(() => {
+            const commoditySlug = rec._commodity ||
+              COMMODITY_SLUG_MAP[rec.name.toLowerCase().trim()] ||
+              rec.name.toLowerCase().replace(/\s+/g, '_')
+            return (
+              <ForecastChart
+                districtId={districtId}
+                commodity={commoditySlug}
+                currentPrice={rec.avgPrice}
+                fallbackPredictedPrice={rec.predictedPrice}
+                commodityLabel={rec.name}
+                districtLabel={districtLabel.split(',')[0]}
+              />
+            )
+          })()}
+        </Accordion>
+      )}
+
+      {districtId && (
+        <Accordion title="🌤️ Cuaca & prakiraan" subtitle="30 hari historis + 14 hari ke depan">
+          <WeatherChart
+            districtId={districtId}
+            districtLabel={districtLabel.split(',')[0]}
+            onSummary={setWeatherSummary}
+          />
+        </Accordion>
+      )}
+
+      {/* Scenarios */}
+      <Accordion title="🔮 Bagaimana kalau..." subtitle="3 kemungkinan hasil: lancar, biasa, berat">
+        <p style={{ fontSize: '0.92rem', color: 'var(--ink-soft)', marginBottom: '16px' }}>
+          Hasil panen tergantung cuaca dan pasar. Kami tunjukkan 3 kemungkinan, supaya Anda siap apapun yang terjadi.
+        </p>
+        <div className="scenario-tabs">
+          {(['optimis', 'normal', 'pesimis'] as ScenarioType[]).map(s => (
+            <button
+              key={s}
+              className={`scenario-tab${scenario === s ? ' active' : ''}`}
+              onClick={() => setScenario(s)}
+            >
+              {SCENARIO_LABELS[s]}
+            </button>
+          ))}
+        </div>
+
+        {(['optimis', 'normal', 'pesimis'] as ScenarioType[]).map(s => (
+          <div key={s} id={`sc-${s}`} className={`scenario-card${scenario === s ? ' active' : ''}`}>
+            <div className="scenario-income">{rec.scenarios[s][0]}</div>
+            <div className="scenario-income-sub">setiap hektare · perkiraan untung bersih</div>
+            <div className="scenario-detail">
+              <div><div className="lbl">Risiko</div><div className="val">{SCENARIO_RISK[s]}</div></div>
+              <div><div className="lbl">Harga jual</div><div className="val">{rec.scenarios[s][1]}</div></div>
+              <div><div className="lbl">Cuaca</div><div className="val">{SCENARIO_CUACA[s]}</div></div>
+              <div><div className="lbl">Pasar</div><div className="val">{SCENARIO_PASAR[s]}</div></div>
+            </div>
+            <div className="scenario-note">{SCENARIO_NOTE[s]}</div>
+          </div>
+        ))}
+      </Accordion>
 
       {/* KUR */}
-      <h3 className="subsection-title">🏦 Kemungkinan dapat pinjaman KUR</h3>
+      <Accordion title="🏦 Kelayakan KUR" subtitle={`Skor ${kur.score}/100 · ${kur.label}`}>
       <p style={{ fontSize: '0.92rem', color: 'var(--ink-soft)', marginBottom: '16px' }}>
         KUR itu pinjaman murah dari pemerintah untuk petani. Bunganya cuma 6% per tahun, dan tidak perlu jaminan untuk pinjaman kecil.
       </p>
@@ -542,9 +563,10 @@ export default function ResultScreen({ recommendation: rec, districtLabel, distr
           })}
         </div>
       </div>
+      </Accordion>
 
-      {/* Market Fairness Layer */}
-      <div className="mfl-section print-hide">
+      {/* Market Fairness Layer — fitur bintang */}
+      <div id="mfl" className="mfl-section print-hide">
         <div className="mfl-badge">🛡️ Lindungi Hasil Panen Anda</div>
         <h2 className="mfl-title">Sebentar, sebelum jual ke tengkulak...</h2>
         <p className="mfl-intro">

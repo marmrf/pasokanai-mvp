@@ -873,6 +873,43 @@ section { padding: 60px 24px; }
   to { opacity: 1; transform: translate(-50%, 0); }
 }
 
+/* ── ACCORDION (progressive disclosure di hasil) ── */
+.acc {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.acc.open { border-color: var(--green-300); }
+.acc-head {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 14px 16px;
+  background: transparent; border: none; cursor: pointer; text-align: left;
+}
+.acc.open .acc-head { background: var(--green-50); }
+.acc-title-wrap { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.acc-title { font-weight: 700; color: var(--ink); font-size: 0.98rem; }
+.acc-sub { font-size: 0.8rem; color: var(--ink-mute); }
+.acc-caret { color: var(--green-700); font-size: 0.9rem; flex-shrink: 0; }
+.acc-body { padding: 4px 16px 16px; }
+
+/* ── GAP ALERT CTA (fitur bintang dipromosikan) ── */
+.gap-cta {
+  width: 100%; display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px; margin: 18px 0 22px;
+  border: 1px solid var(--amber); border-radius: var(--radius);
+  background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
+  cursor: pointer; text-align: left;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.gap-cta:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.gap-cta-icon { font-size: 1.8rem; flex-shrink: 0; }
+.gap-cta-body { flex: 1; min-width: 0; }
+.gap-cta-title { font-weight: 700; color: var(--earth-700, #92400e); font-size: 1rem; margin-bottom: 2px; }
+.gap-cta-sub { font-size: 0.85rem; color: #b45309; line-height: 1.45; }
+.gap-cta-arrow { font-size: 1.3rem; color: var(--amber); flex-shrink: 0; }
+
 /* ── PRINT (screen) ─────────────────────────── */
 .print-only { display: none; }
 .kur-report { display: none; }

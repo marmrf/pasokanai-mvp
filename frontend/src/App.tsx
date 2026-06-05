@@ -43,6 +43,13 @@ export default function App() {
     }
   }, [animationDone, recommendation, screen])
 
+  // Focus the result: scroll to top so the recommendation is the first thing seen
+  useEffect(() => {
+    if (screen === 'result') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [screen])
+
   const handleStartAnalysis = useCallback(async () => {
     setScreen('loading')
     setAnimationDone(false)
@@ -102,12 +109,18 @@ export default function App() {
     .toLowerCase()
     .replace(/\s+/g, '_')
 
+  const isResult = screen === 'result'
+
   return (
     <>
       <Header onScrollToApp={scrollToApp} />
-      <Hero onScrollToApp={scrollToApp} />
-      <Stats />
-      <HowItWorks />
+      {!isResult && (
+        <>
+          <Hero onScrollToApp={scrollToApp} />
+          <Stats />
+          <HowItWorks />
+        </>
+      )}
 
       <section className="app-section" id="app">
         <div className="app">
@@ -144,8 +157,12 @@ export default function App() {
         </div>
       </section>
 
-      <MapDashboard />
-      <TechSection />
+      {!isResult && (
+        <>
+          <MapDashboard />
+          <TechSection />
+        </>
+      )}
       <Footer />
       <DevBanner />
     </>

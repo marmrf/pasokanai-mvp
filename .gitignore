@@ -59,3 +59,7 @@ supabase/functions/
 .env.*
 !.env.example
 .mcp.json
+
+# Working docs (proposal & ppt sources, large binaries)
+proposal/
+template_ppt/
